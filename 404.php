@@ -1,6 +1,6 @@
 <?php
 /**
- * @package Os 10 Melhores Livros
+ * @package Guia Review
  * @since 0.0.1
  */
 get_header(); ?>

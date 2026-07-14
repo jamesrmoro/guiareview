@@ -4,8 +4,8 @@
         <section class="container-page container-page-blog">
             <div class="center">
                 <div class="group-logo">
-                    <img class="logo" width="200px" height="55px" src="<?php bloginfo('template_url') ?>/src/images/logo-os-10-melhores-livros.svg" alt="Logo Os 10 Melhores Livros">
-                    <h1 class="title-hide">Os 10 Melhores Livros</h1>
+                    <img class="logo" width="200px" height="35px" src="<?php bloginfo('template_url') ?>/src/images/logo-guia-review.png" alt="Logo Guia Review">
+                    <h1 class="title-hide">Guia Review</h1>
                 </div>
                 <div class="cards">
                     <div class="wrapper">

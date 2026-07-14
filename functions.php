@@ -1,6 +1,6 @@
 <?php
 
-define( 'sprintcodes_VERSION', '0.0.49' );
+define( 'sprintcodes_VERSION', '0.0.1' );
 add_theme_support( 'post-thumbnails' );
 
 if (function_exists('add_image_size')) {
@@ -345,7 +345,7 @@ function funcao_enviar_relatorio_cliques() {
         $link = $item['link'] ?? '-';
         $so = $item['sistema_operacional'] ?? '-';
         $tipo = $item['tipo_de_clique'] ?? '-';
-        
+
         $anuncio_id = isset($item['anuncio_id'])
             ? $item['anuncio_id']
             : '';
