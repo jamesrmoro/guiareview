@@ -356,13 +356,19 @@ p {
     font-size: 2em;
 }
 
-.format-post p,
+
 .format-post ul li,
 .format-post ol li,
 .format-post span {
 
     color: #fff;
 }
+
+.format-post p {
+
+    color: #ffffff7d;
+}
+
 
 .install-app {
     position: fixed;
