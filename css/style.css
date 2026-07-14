@@ -1,0 +1,437 @@
+* {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Open Sans', sans-serif;
+}
+
+.cookie-notice {
+
+    background-color: #fff;
+    position: fixed;
+    bottom: 10px;
+    left: 0;
+    width: 50%;
+    padding: 20px;
+    z-index: 99999999;
+    right: 0;
+    margin: 0 auto;
+    box-shadow: 0 0 9px 0px #0b0c0c4d;
+    border-radius: 10px;
+}
+
+.cookie-notice .notice-text {
+    width: 100%;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.cookie-notice .notice-text span {
+    color: #000;
+    font-size: 12px;
+    line-height: 21px;
+}
+
+.cookie-notice span p {
+    font-size: inherit;
+    padding-bottom: 0;
+    margin-bottom: 0;
+    color: inherit;
+}
+
+.cookie-notice .notice-buttons {
+    display: inline-block;
+    text-align: center;
+    vertical-align: middle;
+}
+
+
+.cookie-notice .notice-text a {
+    color: #000;
+    text-decoration: underline;
+}
+
+.cookie-notice .notice-text a:hover {
+    color: blue;
+}
+
+.cookie-notice .notice-buttons .btn-cookie {
+    padding: 5px 15px;
+    margin-top: 10px;
+}
+
+
+.cookie-notice .btn-cookie {
+
+    display: inline-block;
+    background-color: #000;
+    color: #fff;
+    font-size: 13px;
+    cursor: pointer;
+    border-radius: 3px;
+    width: 100%;
+}
+
+.cookie-notice .btn-cookie:hover {
+    background-color: #FF5722;
+}
+
+@media screen and (max-width: 800px) {
+
+    .cookie-notice {
+        width: 96%;
+    }
+}
+
+@media (min-width: 1200px) {
+    .container-cookie {
+        max-width: 1140px;
+    }
+}
+
+.container-cookie {
+
+    width: 100%;
+    padding-right: 15px;
+    padding-left: 15px;
+    margin-right: auto;
+    margin-left: auto;
+}
+
+body .swiper-horizontal>.swiper-pagination-bullets,
+.swiper-pagination-bullets.swiper-pagination-horizontal {
+
+    bottom: -20px;
+}
+
+body .swiper-button-next {
+
+    right: -70px;
+}
+
+body .swiper-button-prev {
+
+    left: -70px;
+}
+
+body .swiper-button-prev:after,
+body .swiper-button-next:after {
+
+    color: #f33b4a;
+}
+
+.group-logo {
+
+    margin-bottom: 25px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.edit-post {
+
+    position: absolute;
+    right: 10px;
+    bottom: 25px;
+    background-color: rgb(244 67 54 / 70%);
+    color: #fff;
+    font-size: 12px;
+    padding: 5px 10px;
+    text-decoration: none;
+}
+
+.open-post {
+
+    position: absolute;
+    right: 70px;
+    bottom: 25px;
+    background-color: rgb(76 175 80 / 70%);
+    color: #fff;
+    font-size: 12px;
+    padding: 5px 10px;
+    text-decoration: none;
+}
+
+body .swiper-pagination-bullet {
+
+    width: 7px;
+    height: 7px;
+    background-color: #000;
+
+}
+
+body .swiper-pagination-bullet-active {
+
+    background-color: #fff;
+}
+
+body {
+
+    background: #111226;
+    font-size: 14px;
+    color: #000;
+    margin: 0;
+    padding: 0;
+}
+
+
+.number-subtitle {
+
+    border: 2px solid #fff;
+    width: 30px;
+    text-align: center;
+    border-radius: 100%;
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 30px;
+}
+
+.swiper-books {
+    width: 158px;
+    height: 224px;
+}
+
+.swiper-cards .swiper-slide img {
+
+    border: 1px solid #cbcbcb;
+}
+
+
+img {
+
+    max-width: 100%;
+    vertical-align: top;
+}
+
+.title-page {
+    text-align: center;
+    margin: 0;
+    padding: 0;
+    font-size: 21px;
+    margin-bottom: 15px;
+}
+
+
+
+.group-buttons {
+
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+body.category {
+
+    background-color: #121327;
+}
+
+body.category .container-page {
+
+    background-color: #fff;
+}
+
+.group-description {
+
+    background-color: #121327;
+    margin-top: -60px;
+    padding-left: 15px;
+    padding-right: 15px;
+    padding-top: 40px;
+    display: flex;
+}
+
+.subtitle {
+
+    margin: 0;
+    padding: 0;
+    margin-bottom: 10px;
+    font-size: 19px;
+    color: #fff;
+    align-items: center;
+}
+
+.tag-count {
+
+    position: absolute;
+    left: 10px;
+    top: -3px;
+    background: url(../src/images/icon-tag.svg) no-repeat;
+    width: 25px;
+    height: 35px;
+    background-size: 100%;
+    color: #fff;
+    font-size: 18px;
+    text-align: center;
+    font-weight: bold;
+    padding-top: 7px;
+}
+
+.container-page {
+
+    padding: 20px;
+    background-color: #111226;
+}
+
+.description {
+
+    width: 400px;
+    margin: 0 auto;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.description p {
+
+    color: #fff;
+}
+
+.btn-buy {
+
+    background-color: #f33b4a;
+    display: inline-flex;
+    padding: 10px 15px;
+    gap: 10px;
+    text-decoration: none;
+    text-transform: uppercase;
+    font-weight: bold;
+    font-size: 13px;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid transparent;
+}
+
+.btn-buy span {
+    color: #fff;
+}
+
+.btn-back {
+
+    border: 2px solid #fff;
+    color: #fff;
+    text-decoration: none;
+    display: inline-flex;
+    padding: 10px 15px;
+    gap: 10px;
+    font-weight: bold;
+    text-transform: uppercase;
+    font-size: 13px;
+    align-items: center;
+    justify-content: center;
+}
+
+ul {
+    margin: 0;
+    padding: 0;
+}
+
+.stars {
+    display: flex;
+    gap: 2px;
+}
+
+.stars li {
+
+    list-style: none;
+}
+
+p {
+    margin: 0;
+    padding: 0;
+    padding-bottom: 20px;
+}
+
+.format-post ol,
+.format-post ul {
+
+    padding-bottom: 20px;
+}
+
+.format-post h1 {
+
+    color: #fff;
+    font-size: 2em;
+}
+
+.install-app {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 999;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+    align-items: center;
+    background-color: #000000;
+}
+
+.install-app .close-app {
+    color: #fff;
+    /* Substitua "@include font-regular;" pelo estilo correspondente */
+    font-family: Arial, sans-serif;
+    /* Exemplo */
+    font-weight: normal;
+}
+
+.install-app .first-install {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.install-app .first-install svg {
+    border-radius: 4px;
+}
+
+.install-app .group-install {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.install-app .group-install .stars {
+    display: flex;
+}
+
+.install-app .group-install span {
+    color: #fff;
+    font-size: 12px;
+    /* Substitua "@include font-medium;" pelo estilo correspondente */
+    font-family: Arial, sans-serif;
+    /* Exemplo */
+    font-weight: 500;
+}
+
+.install-app .button-install-app {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    padding: 10px 19px;
+    height: 35px;
+    gap: 5px;
+    background-color: transparent;
+    border: none;
+}
+
+.install-app .button-install-app span {
+    color: #fff;
+    text-transform: uppercase;
+    /* Substitua "@include font-medium;" pelo estilo correspondente */
+    font-family: Arial, sans-serif;
+    /* Exemplo */
+    font-weight: 500;
+}
+
+
+@media screen and (max-width: 560px) {
+
+    .description {
+
+        width: 100%;
+    }
+}

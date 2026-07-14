@@ -1,0 +1,44 @@
+.group {
+
+	background-color: #f2f2f2;
+	padding: 20px;
+	border: 1px solid #ccc;
+	margin-top: 20px;
+	margin-bottom: 20px;
+}
+
+.tabs li {
+
+	list-style: none;
+    border: 1px solid #c3c3c3;
+    padding: 10px;
+    background-color: #fff;
+    cursor: pointer;
+    border-radius: 0.25rem;
+}
+
+.tabs li.active {
+
+    background-color: #0d6efd;
+    color: #fff;
+    border: 1px solid transparent;
+}
+
+.tabs {
+
+	display: flex;
+    gap: 10px;
+    margin: 0;
+    padding: 0;
+    margin-bottom: 20px;
+}
+
+.tab {
+
+	display: none;
+}
+
+.tab.active {
+
+	display: block;
+}

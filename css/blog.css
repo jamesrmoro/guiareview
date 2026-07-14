@@ -1,0 +1,34 @@
+.container-page-blog .card {
+
+	width: 300px;
+}
+
+
+.container-page-blog .center {
+
+    width: 950px;
+}
+
+.category-blog .image img {
+
+	height: auto;
+}
+
+.category-blog .banner {
+
+	margin-top: 30px;
+}
+
+.category-blog .wrapper-post .image {
+
+	padding: 0;
+}
+
+@media screen and (max-width: 950px) {
+
+	.container-page-blog .center {
+
+		width: 100%;
+
+	}
+}
