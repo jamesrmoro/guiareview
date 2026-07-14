@@ -359,12 +359,13 @@ p {
 
 .format-post ul li,
 .format-post ol li,
-.format-post span {
-
-    color: #fff;
-}
-
-.format-post p {
+.format-post span,
+.format-post p,
+.format-post h2,
+.format-post h3,
+.format-post h4,
+.format-post h5,
+.format-post h6 {
 
     color: #ffffff7d;
 }
