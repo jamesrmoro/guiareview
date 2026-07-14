@@ -345,12 +345,28 @@ function funcao_enviar_relatorio_cliques() {
         $link = $item['link'] ?? '-';
         $so = $item['sistema_operacional'] ?? '-';
         $tipo = $item['tipo_de_clique'] ?? '-';
-        $emoji = match ($item['anuncio_id'] ?? '') {
-            'ads-1' => '🔵 rodapé',
-            'ads-2' => '🟣 modal',
-            'ads-3' => '🔴 fechou',
-            default => '⚪️'
-        };
+        
+        $anuncio_id = isset($item['anuncio_id'])
+            ? $item['anuncio_id']
+            : '';
+
+        switch ($anuncio_id) {
+            case 'ads-1':
+                $emoji = '🔵 rodapé';
+                break;
+
+            case 'ads-2':
+                $emoji = '🟣 modal';
+                break;
+
+            case 'ads-3':
+                $emoji = '🔴 fechou';
+                break;
+
+            default:
+                $emoji = '⚪️';
+                break;
+        }
 
         $mensagem .= "<li>$emoji às <strong>$hora</strong> — <a href=\"$link\">$link</a> — $tipo — $so</li>";
     }
