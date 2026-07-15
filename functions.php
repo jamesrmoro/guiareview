@@ -1,6 +1,6 @@
 <?php
 
-define( 'sprintcodes_VERSION', '0.0.3' );
+define( 'sprintcodes_VERSION', '0.0.4' );
 add_theme_support( 'post-thumbnails' );
 
 if (function_exists('add_image_size')) {
