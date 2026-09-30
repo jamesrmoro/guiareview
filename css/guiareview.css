@@ -29,7 +29,7 @@
 .grv-hd-row{display:flex;align-items:center;gap:20px;padding:14px 0}
 .grv-logo{display:flex;align-items:center;gap:8px;flex:0 0 auto}
 .grv-logo img{height:32px;width:auto;display:block}
-.grv-search-btn{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);border-radius:999px;color:#fff;padding:9px 16px;display:flex;align-items:center;gap:8px;flex:1;max-width:480px;justify-content:flex-start}
+.grv-search-btn{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);border-radius:999px;color:#fff;padding:9px 16px;display:flex;align-items:center;gap:8px;flex:1;min-width:0;max-width:480px;justify-content:flex-start}
 .grv-search-btn:hover{background:rgba(255,255,255,.14);text-decoration:none}
 .grv-menu-toggle{display:none;background:none;border:0;color:#fff;padding:6px}
 
@@ -103,13 +103,16 @@
 
 /* ---------- Página de produto ---------- */
 .grv-product{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,4fr) 260px;gap:28px;align-items:start;padding:24px 0}
-.grv-gallery .thumbs{list-style:none;display:flex;flex-direction:column;gap:8px;margin:0;padding:0;float:left;width:64px}
-.grv-gallery{display:flex;gap:10px}
-.grv-gallery .thumbs{flex:0 0 64px}
-.grv-thumb{border:2px solid var(--line);border-radius:6px;padding:0;overflow:hidden;width:60px;height:60px;background:#fff}
+.grv-product>*{min-width:0}
+.grv-gallery{display:flex;gap:10px;min-width:0}
+.grv-gallery .thumbs{list-style:none;display:flex;flex-direction:column;gap:8px;margin:0;padding:0;flex:0 0 64px}
+.grv-thumb{border:2px solid var(--line);border-radius:6px;padding:0;overflow:hidden;width:60px;height:60px;background:#fff;flex:none}
 .grv-thumb.is-active{border-color:var(--accent-2)}
 .grv-thumb img{width:100%;height:100%;object-fit:contain}
-.grv-stage{flex:1;border:1px solid var(--line);border-radius:var(--radius);display:flex;align-items:center;justify-content:center;aspect-ratio:1/1;background:#fff;overflow:hidden}
+/* flex:1 por si só não encolhe abaixo do tamanho intrínseco da imagem
+   (min-width:auto é o padrão do flexbox) — min-width:0 é o que evita a
+   galeria estourar a largura da tela no mobile. */
+.grv-stage{flex:1;min-width:0;border:1px solid var(--line);border-radius:var(--radius);display:flex;align-items:center;justify-content:center;aspect-ratio:1/1;background:#fff;overflow:hidden}
 .grv-stage img{max-width:100%;max-height:100%;object-fit:contain}
 
 .grv-info h1{font-size:21px;font-weight:700;margin:0 0 6px}

@@ -1,6 +1,6 @@
 <?php
 
-define( 'sprintcodes_VERSION', '0.0.6' );
+define( 'sprintcodes_VERSION', '0.0.7' );
 add_theme_support( 'post-thumbnails' );
 add_theme_support( 'title-tag' );
 
