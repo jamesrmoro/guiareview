@@ -57,7 +57,7 @@ get_header();
 		$images[] = array( 'url' => get_the_post_thumbnail_url( $post_id, 'large' ), 'alt' => get_the_title() );
 	}
 	if ( empty( $images ) ) {
-		$images[] = array( 'url' => get_template_directory_uri() . '/src/images/thumbnail-default.jpg', 'alt' => get_the_title() );
+		$images[] = array( 'url' => get_template_directory_uri() . '/src/images/placeholder-product.svg', 'alt' => get_the_title() );
 	}
 
 	$categories   = get_the_category();

@@ -1,6 +1,6 @@
 <?php
 
-define( 'sprintcodes_VERSION', '0.0.5' );
+define( 'sprintcodes_VERSION', '0.0.6' );
 add_theme_support( 'post-thumbnails' );
 add_theme_support( 'title-tag' );
 
@@ -124,7 +124,7 @@ function grv_product_card( $post_id ) {
     $image = get_the_post_thumbnail_url( $post_id, 'product_card' );
   }
   if ( ! $image ) {
-    $image = get_template_directory_uri() . '/src/images/thumbnail-default.jpg';
+    $image = get_template_directory_uri() . '/src/images/placeholder-product.svg';
   }
 
   $link = get_permalink( $post_id );
