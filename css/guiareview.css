@@ -1,13 +1,14 @@
 /**
  * Guia Review — folha de estilo do redesenho (home, categorias, produto).
- * Paleta: navy #111226 + coral #f33b4a (marca real do logo/screenshot).
- * Carregada apenas nas páginas redesenhadas (ver functions.php).
+ * Paleta igual à do protótipo (projetos/amazon): fundo branco, header/footer
+ * escuros, destaque em laranja/amarelo, links em teal.
  */
 
 :root{
-  --bg:#fff; --text:#16181f; --muted:#6b7280; --line:#e6e7ee; --soft:#f6f6fb;
-  --ink:#111226; --ink-2:#1a1d3a; --accent:#f33b4a; --accent-dark:#d81f3a;
-  --star:#ffb020; --link:#111226; --ok:#0a8a5c; --radius:10px; --w:1280px;
+  --bg:#fff; --text:#0f1111; --muted:#565959; --line:#e3e6e6; --soft:#f7f8f8;
+  --ink:#131921; --ink-2:#232f3e; --link:#007185;
+  --accent:#ffd814; --accent-2:#ffa41c; --accent-dark:#e88c0c;
+  --star:#ffa41c; --ok:#067d62; --radius:8px; --w:1280px;
 }
 *,*::before,*::after{box-sizing:border-box}
 .grv{font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;color:var(--text);background:var(--bg)}
@@ -64,18 +65,18 @@
 .grv-drawer-flat-link{display:block;padding:12px 16px;font-size:14px;font-weight:600;color:var(--text);border-bottom:1px solid var(--line)}
 .grv-drawer-sub li a{font-weight:600}
 
-.grv-search-modal-bg{position:fixed;inset:0;background:rgba(17,18,38,.85);display:none;align-items:flex-start;justify-content:center;padding-top:10vh;z-index:80}
+.grv-search-modal-bg{position:fixed;inset:0;background:rgba(19,25,33,.85);display:none;align-items:flex-start;justify-content:center;padding-top:10vh;z-index:80}
 .grv-search-modal-bg.active{display:flex}
 .grv-search-modal-box{background:#fff;border-radius:var(--radius);padding:24px;width:min(560px,92vw);position:relative}
 .grv-search-modal-close{position:absolute;top:12px;right:12px;background:var(--ink);border:0;border-radius:50%;width:32px;height:32px}
 .grv-form-search{display:flex;gap:8px;margin-top:6px}
 .grv-form-search input{flex:1;padding:12px 14px;border:1px solid var(--line);border-radius:8px;font-size:15px}
-.grv-form-search button{background:var(--accent);color:#fff;border:0;border-radius:8px;padding:0 18px;font-weight:700}
+.grv-form-search button{background:var(--accent-2);color:#0f1111;border:0;border-radius:8px;padding:0 18px;font-weight:700}
 
 /* ---------- Product cards (grid reusado em categoria, home, relacionados) ---------- */
 .grv-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px}
 .grv-card{border:1px solid var(--line);border-radius:var(--radius);padding:12px;background:#fff;display:flex;flex-direction:column;gap:8px;height:100%}
-.grv-card:hover{border-color:#d3d5e4;text-decoration:none}
+.grv-card:hover{border-color:#c8c9cb;text-decoration:none}
 .grv-card .thumb{aspect-ratio:1/1;border-radius:8px;overflow:hidden;background:var(--soft);display:flex;align-items:center;justify-content:center}
 .grv-card .thumb img{width:100%;height:100%;object-fit:contain}
 .grv-card h3{font-size:14px;font-weight:600;margin:0;color:var(--text);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
@@ -83,20 +84,20 @@
 .grv-card .rating .stars{color:var(--star)}
 .grv-card .price{font-size:17px;font-weight:800;color:var(--text);margin-top:auto}
 .grv-card .price .old{font-size:12px;font-weight:500;color:var(--muted);text-decoration:line-through;margin-right:6px}
-.grv-card .btn-buy-sm{background:var(--accent);color:#fff;text-align:center;padding:8px;border-radius:8px;font-size:13px;font-weight:700}
-.grv-card .btn-buy-sm:hover{background:var(--accent-dark);text-decoration:none;color:#fff}
+.grv-card .btn-buy-sm{background:var(--accent-2);color:#0f1111;text-align:center;padding:8px;border-radius:8px;font-size:13px;font-weight:700}
+.grv-card .btn-buy-sm:hover{background:var(--accent-dark);text-decoration:none;color:#0f1111}
 
 /* ---------- Home ---------- */
-.grv-hero{background:linear-gradient(135deg,var(--ink) 0%,var(--ink-2) 100%);color:#fff;padding:48px 0}
+.grv-hero{background:var(--ink);color:#fff;padding:48px 0}
 .grv-hero h1{font-size:clamp(24px,4vw,38px);margin:0 0 10px}
-.grv-hero p{font-size:16px;color:#c7c9e0;max-width:640px;margin:0}
+.grv-hero p{font-size:16px;color:#cdd1d6;max-width:640px;margin:0}
 .grv-section{padding:40px 0}
 .grv-section h2{font-size:22px}
 .grv-section .section-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:18px}
 .grv-cat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px}
 .grv-cat-tile{position:relative;border-radius:var(--radius);overflow:hidden;aspect-ratio:4/3;background:var(--soft);display:flex;align-items:flex-end;color:#fff}
 .grv-cat-tile img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-.grv-cat-tile::after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,rgba(17,18,38,.82),rgba(17,18,38,.05) 60%)}
+.grv-cat-tile::after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,rgba(19,25,33,.85),rgba(19,25,33,.05) 60%)}
 .grv-cat-tile span{position:relative;padding:14px;font-weight:700;font-size:14.5px}
 .grv-cat-tile:hover{text-decoration:none}
 
@@ -106,7 +107,7 @@
 .grv-gallery{display:flex;gap:10px}
 .grv-gallery .thumbs{flex:0 0 64px}
 .grv-thumb{border:2px solid var(--line);border-radius:6px;padding:0;overflow:hidden;width:60px;height:60px;background:#fff}
-.grv-thumb.is-active{border-color:var(--accent)}
+.grv-thumb.is-active{border-color:var(--accent-2)}
 .grv-thumb img{width:100%;height:100%;object-fit:contain}
 .grv-stage{flex:1;border:1px solid var(--line);border-radius:var(--radius);display:flex;align-items:center;justify-content:center;aspect-ratio:1/1;background:#fff;overflow:hidden}
 .grv-stage img{max-width:100%;max-height:100%;object-fit:contain}
@@ -130,10 +131,10 @@
 .grv-buybox .price .old{display:block;font-size:13px;font-weight:500;color:var(--muted);text-decoration:line-through;margin-bottom:2px}
 .grv-buybox .stock{color:var(--ok);font-weight:600;font-size:13.5px;margin:6px 0 2px}
 .grv-buybox .muted{font-size:12.5px}
-.grv-buybox .btn-buy{display:block;text-align:center;background:var(--accent);color:#fff;font-weight:700;padding:13px;border-radius:8px;margin:14px 0 0}
-.grv-buybox .btn-buy:hover{background:var(--accent-dark);text-decoration:none;color:#fff}
-.grv-buybox .btn-buy-2{display:block;text-align:center;background:var(--ink);color:#fff;font-weight:700;padding:13px;border-radius:8px;margin-top:8px}
-.grv-buybox .btn-buy-2:hover{background:var(--ink-2);text-decoration:none;color:#fff}
+.grv-buybox .btn-buy{display:block;text-align:center;background:var(--accent-2);color:#0f1111;font-weight:700;padding:13px;border-radius:8px;margin:14px 0 0}
+.grv-buybox .btn-buy:hover{background:var(--accent-dark);text-decoration:none;color:#0f1111}
+.grv-buybox .btn-buy-2{display:block;text-align:center;background:var(--accent);color:#0f1111;font-weight:700;padding:13px;border-radius:8px;margin-top:8px}
+.grv-buybox .btn-buy-2:hover{background:#f2c200;text-decoration:none;color:#0f1111}
 
 .grv-block{padding:30px 0}
 .grv-block h2{font-size:19px;margin-bottom:14px}
@@ -153,7 +154,7 @@
 .grv-cat-header .desc{color:var(--muted);max-width:760px}
 .grv-subcats{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 6px}
 .grv-subcats a{background:var(--soft);border:1px solid var(--line);border-radius:999px;padding:7px 14px;font-size:13px;font-weight:600;color:var(--text)}
-.grv-subcats a:hover{background:#eceefa;text-decoration:none}
+.grv-subcats a:hover{background:#f2f2f2;text-decoration:none}
 .grv-empty{padding:40px 0;text-align:center;color:var(--muted)}
 
 /* Saída de pagination() em functions/functions/pagination.php (classes nativas do WP) */
@@ -170,7 +171,7 @@
 .grv-footer-cols h3{color:#fff;font-size:14.5px;margin:0 0 10px}
 .grv-footer-cols ul{list-style:none;margin:0;padding:0}
 .grv-footer-cols li{margin-bottom:7px}
-.grv-footer-cols a{color:#c7c9e0;font-size:13.5px}
+.grv-footer-cols a{color:#cdd1d6;font-size:13.5px}
 .grv-footer-cols a:hover{color:#fff}
 
 /* ---------- Responsive ---------- */
@@ -185,3 +186,23 @@
   .grv-product{grid-template-columns:1fr}
   .grv-footer-cols{grid-template-columns:1fr 1fr}
 }
+
+/* =========================================================================
+   Widgets de anúncio/cookies (fora do escopo do .grv, ficam no <body> raiz).
+   Portado de css/index.css — regras que só existiam lá e por isso sumiram
+   quando paramos de carregar index.css em todas as páginas.
+   ========================================================================= */
+#footer-banner{position:fixed;bottom:0;left:0;width:100%;background:#fff;color:#fff;z-index:9999;transition:bottom .3s ease;height:70px}
+#footer-banner .banner-inner{display:flex;gap:10px;justify-content:center;padding:10px;box-shadow:-1px -2px 6px 0px #3333338f;background-color:#fff;text-decoration:none;height:100%}
+#footer-banner .banner-text{display:grid;gap:10px;grid-template-columns:50px auto;align-items:center}
+#footer-banner .group-banner h2{color:#333;font-size:12px}
+#footer-banner #toggle-banner{background:url(../src/images/icon-arrow.svg);border:none;background-color:#fff;font-size:18px;cursor:pointer;transform:rotate(0deg);position:absolute;right:16px;top:-20px;width:30px;height:20px;background-size:60%;background-position:center;background-repeat:no-repeat}
+#footer-banner.collapsed{bottom:-70px}
+#footer-banner.collapsed #toggle-banner{transform:rotate(180deg)}
+#footer-banner .link{color:var(--link);font-size:12px}
+#footer-banner .group-link{display:flex;align-items:center;gap:5px}
+
+.wrapper-modal-ads{display:flex;flex-direction:column;gap:10px;color:#fff;align-items:end}
+.closeText{height:20px}
+.modal-ads{position:fixed;width:100%;height:100%;background-color:#111111e0;left:0;top:0;display:none;align-items:center;justify-content:center;z-index:99999}
+.modal-ads.active{display:flex}

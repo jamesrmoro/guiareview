@@ -6,7 +6,7 @@ function login_enqueue_scripts(){ ?>
                 background: #f6f6fb;
             }
             .background-cover{
-                background: #111226;
+                background: #131921;
                 position:fixed;
                 top:0;
                 left:0;
@@ -32,7 +32,7 @@ function login_enqueue_scripts(){ ?>
             }
             .login .message {
                 margin-bottom: 0 !important;
-                border-left-color: #f33b4a !important;
+                border-left-color: #ffa41c !important;
             }
             .login h1 a {
                 background: url('<?php echo get_bloginfo('template_directory') ?>/src/images/logo-guia-review.png') no-repeat center top !important;
@@ -46,12 +46,13 @@ function login_enqueue_scripts(){ ?>
             input.button-primary, button.button-primary, .button-primary{
                 border-radius: 6px !important;
                 border:none !important;
-                background-color: #f33b4a !important;
-                font-weight:600 !important;
+                background-color: #ffa41c !important;
+                color: #0f1111 !important;
+                font-weight:700 !important;
                 text-shadow:none !important;
                 }
                 .button:active, .submit input:active, .button-secondary:active {
-                    background: #d81f3a !important;
+                    background: #e88c0c !important;
                     text-shadow: none !important;
                 }
                 .login #nav a, .login #backtoblog a {
@@ -59,7 +60,7 @@ function login_enqueue_scripts(){ ?>
                     text-shadow: none !important;
                 }
                 .login #nav a:hover, .login #backtoblog a:hover{
-                    color: #f33b4a !important;
+                    color: #ffa41c !important;
                     text-shadow: none !important;
                 }
                 .login #nav, .login #backtoblog{
@@ -69,7 +70,7 @@ function login_enqueue_scripts(){ ?>
                     box-shadow: 0 8px 28px rgba(0,0,0,.25) !important;
                 }
                 .login input[type=checkbox]:checked::before{
-                    color: #f33b4a !important;
+                    color: #ffa41c !important;
                 }
             </style>
     <?php } add_action( 'login_enqueue_scripts', 'login_enqueue_scripts' );

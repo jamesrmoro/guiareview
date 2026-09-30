@@ -87,9 +87,10 @@ if ( empty( $attach_ids ) ) {
 update_field( 'url', 'https://www.amazon.com.br/dp/B0DQVLF642', $post_id );
 update_field( 'brand', 'LUVINco', $post_id );
 update_field( 'color', 'Preto', $post_id );
-update_field( 'price', 1234.90, $post_id );
 update_field( 'rating', 4.5, $post_id );
 update_field( 'review_count', 465, $post_id );
+// Preço não é cadastrado: o card/buybox mostram só "Ver oferta" (preço muda
+// com frequência e não deve ser fixado no conteúdo).
 
 update_field( 'bullets', implode( "\n", array(
 	'Design ergonômico: confortável e durável, ideal para longas horas de uso.',
