@@ -1,0 +1,187 @@
+/**
+ * Guia Review — folha de estilo do redesenho (home, categorias, produto).
+ * Paleta: navy #111226 + coral #f33b4a (marca real do logo/screenshot).
+ * Carregada apenas nas páginas redesenhadas (ver functions.php).
+ */
+
+:root{
+  --bg:#fff; --text:#16181f; --muted:#6b7280; --line:#e6e7ee; --soft:#f6f6fb;
+  --ink:#111226; --ink-2:#1a1d3a; --accent:#f33b4a; --accent-dark:#d81f3a;
+  --star:#ffb020; --link:#111226; --ok:#0a8a5c; --radius:10px; --w:1280px;
+}
+*,*::before,*::after{box-sizing:border-box}
+.grv{font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;color:var(--text);background:var(--bg)}
+.grv img{max-width:100%;height:auto;display:block}
+.grv a{color:var(--link);text-decoration:none}
+.grv a:hover{text-decoration:underline}
+.grv button{font:inherit;cursor:pointer}
+.grv h1,.grv h2,.grv h3{line-height:1.25;margin:0 0 10px;font-weight:800}
+.grv hr{border:0;border-top:1px solid var(--line);margin:16px 0}
+.grv table{border-collapse:collapse;width:100%}
+.grv .container{max-width:var(--w);margin:0 auto;padding:0 16px}
+.grv .muted{color:var(--muted)}
+.grv .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+/* ---------- Header ---------- */
+.grv-header{background:var(--ink);color:#fff}
+.grv-header a{color:#fff}
+.grv-hd-row{display:flex;align-items:center;gap:20px;padding:14px 0}
+.grv-logo{display:flex;align-items:center;gap:8px;flex:0 0 auto}
+.grv-logo img{height:32px;width:auto;display:block}
+.grv-search-btn{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);border-radius:999px;color:#fff;padding:9px 16px;display:flex;align-items:center;gap:8px;flex:1;max-width:480px;justify-content:flex-start}
+.grv-search-btn:hover{background:rgba(255,255,255,.14);text-decoration:none}
+.grv-menu-toggle{display:none;background:none;border:0;color:#fff;padding:6px}
+
+.grv-cat-nav{background:var(--ink-2);border-top:1px solid rgba(255,255,255,.08)}
+.grv-cat-list{list-style:none;display:flex;gap:4px;margin:0;padding:0;overflow-x:auto;scrollbar-width:none}
+.grv-cat-list::-webkit-scrollbar{display:none}
+.grv-cat-list>li{position:relative;flex:0 0 auto}
+.grv-cat-list>li>a{display:block;padding:11px 14px;font-size:13.5px;font-weight:600;white-space:nowrap}
+.grv-cat-list>li>a:hover{background:rgba(255,255,255,.08);text-decoration:none}
+.grv-cat-list .sub-menu{display:none;position:absolute;left:0;top:100%;background:#fff;color:var(--text);min-width:220px;border-radius:0 0 var(--radius) var(--radius);box-shadow:0 12px 28px rgba(0,0,0,.18);padding:6px;z-index:40;list-style:none;margin:0}
+.grv-cat-list .sub-menu a{color:var(--text);display:block;padding:9px 12px;border-radius:6px;font-size:13.5px;font-weight:500}
+.grv-cat-list .sub-menu a:hover{background:var(--soft);text-decoration:none}
+.grv-cat-list li:hover>.sub-menu{display:block}
+
+.grv-crumbs{padding:10px 0;font-size:12.5px;color:var(--muted)}
+.grv-crumbs ol{list-style:none;display:flex;flex-wrap:wrap;gap:6px;margin:0;padding:0}
+.grv-crumbs a{color:var(--muted)}
+.grv-crumbs li:not(:last-child)::after{content:"/";margin-left:6px;color:#c7c9d6}
+
+/* Mobile drawer */
+.grv-drawer{border:0;padding:0;margin:0;max-width:340px;width:88vw;height:100vh;position:fixed;top:0;left:0;background:#fff;color:var(--text)}
+.grv-drawer::backdrop{background:rgba(0,0,0,.5)}
+.grv-drawer-head{display:flex;align-items:center;justify-content:space-between;background:var(--ink);color:#fff;padding:16px}
+.grv-drawer-close{background:none;border:0;color:#fff;font-size:22px;line-height:1}
+.grv-drawer-body{padding:10px 0;overflow-y:auto;height:calc(100vh - 58px)}
+.grv-drawer-body details{border-bottom:1px solid var(--line)}
+.grv-drawer-body summary{padding:13px 16px;font-weight:700;cursor:pointer}
+.grv-drawer-body ul{list-style:none;margin:0;padding:0 0 10px}
+.grv-drawer-body li a{display:block;padding:8px 16px 8px 28px;font-size:14px;color:var(--text)}
+.grv-drawer-body details details summary{padding-left:28px;font-weight:600;font-size:14px}
+.grv-drawer-body details details .grv-drawer-sub li a,
+.grv-drawer-body details details ~ a{padding-left:40px}
+.grv-drawer-flat-link{display:block;padding:12px 16px;font-size:14px;font-weight:600;color:var(--text);border-bottom:1px solid var(--line)}
+.grv-drawer-sub li a{font-weight:600}
+
+.grv-search-modal-bg{position:fixed;inset:0;background:rgba(17,18,38,.85);display:none;align-items:flex-start;justify-content:center;padding-top:10vh;z-index:80}
+.grv-search-modal-bg.active{display:flex}
+.grv-search-modal-box{background:#fff;border-radius:var(--radius);padding:24px;width:min(560px,92vw);position:relative}
+.grv-search-modal-close{position:absolute;top:12px;right:12px;background:var(--ink);border:0;border-radius:50%;width:32px;height:32px}
+.grv-form-search{display:flex;gap:8px;margin-top:6px}
+.grv-form-search input{flex:1;padding:12px 14px;border:1px solid var(--line);border-radius:8px;font-size:15px}
+.grv-form-search button{background:var(--accent);color:#fff;border:0;border-radius:8px;padding:0 18px;font-weight:700}
+
+/* ---------- Product cards (grid reusado em categoria, home, relacionados) ---------- */
+.grv-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px}
+.grv-card{border:1px solid var(--line);border-radius:var(--radius);padding:12px;background:#fff;display:flex;flex-direction:column;gap:8px;height:100%}
+.grv-card:hover{border-color:#d3d5e4;text-decoration:none}
+.grv-card .thumb{aspect-ratio:1/1;border-radius:8px;overflow:hidden;background:var(--soft);display:flex;align-items:center;justify-content:center}
+.grv-card .thumb img{width:100%;height:100%;object-fit:contain}
+.grv-card h3{font-size:14px;font-weight:600;margin:0;color:var(--text);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.grv-card .rating{display:flex;align-items:center;gap:4px;font-size:12.5px;color:var(--muted)}
+.grv-card .rating .stars{color:var(--star)}
+.grv-card .price{font-size:17px;font-weight:800;color:var(--text);margin-top:auto}
+.grv-card .price .old{font-size:12px;font-weight:500;color:var(--muted);text-decoration:line-through;margin-right:6px}
+.grv-card .btn-buy-sm{background:var(--accent);color:#fff;text-align:center;padding:8px;border-radius:8px;font-size:13px;font-weight:700}
+.grv-card .btn-buy-sm:hover{background:var(--accent-dark);text-decoration:none;color:#fff}
+
+/* ---------- Home ---------- */
+.grv-hero{background:linear-gradient(135deg,var(--ink) 0%,var(--ink-2) 100%);color:#fff;padding:48px 0}
+.grv-hero h1{font-size:clamp(24px,4vw,38px);margin:0 0 10px}
+.grv-hero p{font-size:16px;color:#c7c9e0;max-width:640px;margin:0}
+.grv-section{padding:40px 0}
+.grv-section h2{font-size:22px}
+.grv-section .section-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:18px}
+.grv-cat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px}
+.grv-cat-tile{position:relative;border-radius:var(--radius);overflow:hidden;aspect-ratio:4/3;background:var(--soft);display:flex;align-items:flex-end;color:#fff}
+.grv-cat-tile img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.grv-cat-tile::after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,rgba(17,18,38,.82),rgba(17,18,38,.05) 60%)}
+.grv-cat-tile span{position:relative;padding:14px;font-weight:700;font-size:14.5px}
+.grv-cat-tile:hover{text-decoration:none}
+
+/* ---------- Página de produto ---------- */
+.grv-product{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,4fr) 260px;gap:28px;align-items:start;padding:24px 0}
+.grv-gallery .thumbs{list-style:none;display:flex;flex-direction:column;gap:8px;margin:0;padding:0;float:left;width:64px}
+.grv-gallery{display:flex;gap:10px}
+.grv-gallery .thumbs{flex:0 0 64px}
+.grv-thumb{border:2px solid var(--line);border-radius:6px;padding:0;overflow:hidden;width:60px;height:60px;background:#fff}
+.grv-thumb.is-active{border-color:var(--accent)}
+.grv-thumb img{width:100%;height:100%;object-fit:contain}
+.grv-stage{flex:1;border:1px solid var(--line);border-radius:var(--radius);display:flex;align-items:center;justify-content:center;aspect-ratio:1/1;background:#fff;overflow:hidden}
+.grv-stage img{max-width:100%;max-height:100%;object-fit:contain}
+
+.grv-info h1{font-size:21px;font-weight:700;margin:0 0 6px}
+.grv-info .brand-link{font-size:13px;color:var(--link);display:inline-block;margin-bottom:6px}
+.grv-rating{display:flex;align-items:center;gap:6px;font-size:13.5px;margin:2px 0 8px}
+.grv-rating .stars{color:var(--star);letter-spacing:1px}
+.grv-rating a{color:var(--link)}
+
+.grv-quick-specs{font-size:13.5px;margin:12px 0}
+.grv-quick-specs tr{border-bottom:1px solid var(--line)}
+.grv-quick-specs th{text-align:left;color:var(--muted);font-weight:500;padding:7px 10px 7px 0;width:38%;vertical-align:top}
+.grv-quick-specs td{padding:7px 0}
+
+.grv-bullets{margin:12px 0;padding-left:18px}
+.grv-bullets li{margin-bottom:7px;font-size:14px}
+
+.grv-buybox{border:1px solid var(--line);border-radius:var(--radius);padding:18px;position:sticky;top:16px}
+.grv-buybox .price{font-size:26px;font-weight:800;margin:0 0 2px}
+.grv-buybox .price .old{display:block;font-size:13px;font-weight:500;color:var(--muted);text-decoration:line-through;margin-bottom:2px}
+.grv-buybox .stock{color:var(--ok);font-weight:600;font-size:13.5px;margin:6px 0 2px}
+.grv-buybox .muted{font-size:12.5px}
+.grv-buybox .btn-buy{display:block;text-align:center;background:var(--accent);color:#fff;font-weight:700;padding:13px;border-radius:8px;margin:14px 0 0}
+.grv-buybox .btn-buy:hover{background:var(--accent-dark);text-decoration:none;color:#fff}
+.grv-buybox .btn-buy-2{display:block;text-align:center;background:var(--ink);color:#fff;font-weight:700;padding:13px;border-radius:8px;margin-top:8px}
+.grv-buybox .btn-buy-2:hover{background:var(--ink-2);text-decoration:none;color:#fff}
+
+.grv-block{padding:30px 0}
+.grv-block h2{font-size:19px;margin-bottom:14px}
+
+.grv-accordion details{border-top:1px solid var(--line);padding:12px 0}
+.grv-accordion summary{font-weight:700;cursor:pointer;font-size:14.5px}
+.grv-accordion table.specs{font-size:13.5px;margin-top:10px}
+.grv-accordion table.specs tr{border-bottom:1px solid var(--line)}
+.grv-accordion table.specs th{text-align:left;color:var(--muted);font-weight:500;padding:7px 10px 7px 0;width:38%}
+.grv-accordion table.specs td{padding:7px 0}
+
+.grv-related .grv-grid{margin-top:4px}
+
+/* ---------- Categoria ---------- */
+.grv-cat-header{padding:26px 0 8px}
+.grv-cat-header h1{font-size:24px}
+.grv-cat-header .desc{color:var(--muted);max-width:760px}
+.grv-subcats{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 6px}
+.grv-subcats a{background:var(--soft);border:1px solid var(--line);border-radius:999px;padding:7px 14px;font-size:13px;font-weight:600;color:var(--text)}
+.grv-subcats a:hover{background:#eceefa;text-decoration:none}
+.grv-empty{padding:40px 0;text-align:center;color:var(--muted)}
+
+/* Saída de pagination() em functions/functions/pagination.php (classes nativas do WP) */
+.pagination{margin:32px 0}
+.pagination .page-numbers{list-style:none;display:flex;justify-content:center;flex-wrap:wrap;gap:6px;margin:0;padding:0}
+.pagination .page-numbers li{display:contents}
+.pagination a.page-numbers,.pagination span.page-numbers{min-width:38px;height:38px;padding:0 10px;display:flex;align-items:center;justify-content:center;border-radius:8px;border:1px solid var(--line);font-size:13.5px;font-weight:600;color:var(--text)}
+.pagination span.page-numbers.current{background:var(--ink);color:#fff;border-color:var(--ink)}
+.pagination a.page-numbers:hover{background:var(--soft);text-decoration:none}
+.pagination .title-left,.pagination .title-right{font-weight:600}
+
+/* ---------- Footer ---------- */
+.grv-footer-cols{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;padding:36px 0}
+.grv-footer-cols h3{color:#fff;font-size:14.5px;margin:0 0 10px}
+.grv-footer-cols ul{list-style:none;margin:0;padding:0}
+.grv-footer-cols li{margin-bottom:7px}
+.grv-footer-cols a{color:#c7c9e0;font-size:13.5px}
+.grv-footer-cols a:hover{color:#fff}
+
+/* ---------- Responsive ---------- */
+@media (max-width:980px){
+  .grv-product{grid-template-columns:1fr 1fr}
+  .grv-buybox{grid-column:1 / -1;position:static}
+}
+@media (max-width:680px){
+  .grv-menu-toggle{display:inline-flex;align-items:center}
+  .grv-cat-nav{display:none}
+  .grv-search-btn span{display:none}
+  .grv-product{grid-template-columns:1fr}
+  .grv-footer-cols{grid-template-columns:1fr 1fr}
+}

@@ -3,10 +3,10 @@ function login_enqueue_scripts(){ ?>
     <div class="background-cover"></div>
         <style type="text/css" media="screen">
             body.login{
-                background: #fff;
+                background: #f6f6fb;
             }
             .background-cover{
-                background-size: cover !important;
+                background: #111226;
                 position:fixed;
                 top:0;
                 left:0;
@@ -14,7 +14,6 @@ function login_enqueue_scripts(){ ?>
                 overflow: hidden;
                 width: 100%;
                 height:100%;
-                opacity: 0.9;
             }
             #login{
                 z-index:9999;
@@ -28,13 +27,15 @@ function login_enqueue_scripts(){ ?>
             }
             .login form {
                 margin-top: 0 !important;
-                background-color: #e8e7e7 !important;
+                background-color: #fff !important;
+                border-radius: 8px;
             }
             .login .message {
                 margin-bottom: 0 !important;
+                border-left-color: #f33b4a !important;
             }
             .login h1 a {
-                background: url('<?php echo get_bloginfo('template_directory') ?>/src/images/logo-os-10-melhores-livros.svg') no-repeat center top !important;
+                background: url('<?php echo get_bloginfo('template_directory') ?>/src/images/logo-guia-review.png') no-repeat center top !important;
                 margin-bottom: 20px !important;
                 padding-bottom: 0px;
                 background-size: 210px !important;
@@ -43,30 +44,42 @@ function login_enqueue_scripts(){ ?>
                 display: block;
             }
             input.button-primary, button.button-primary, .button-primary{
-                border-radius: 3px !important;
+                border-radius: 6px !important;
                 border:none !important;
-                background-color: #081032 !important;
-                font-weight:normal !important;
+                background-color: #f33b4a !important;
+                font-weight:600 !important;
                 text-shadow:none !important;
                 }
                 .button:active, .submit input:active, .button-secondary:active {
-                    background: #85ceb3 !important;
+                    background: #d81f3a !important;
                     text-shadow: none !important;
                 }
                 .login #nav a, .login #backtoblog a {
-                    color: #081032 !important;
+                    color: #fff !important;
                     text-shadow: none !important;
                 }
                 .login #nav a:hover, .login #backtoblog a:hover{
-                    color: #081032 !important;
+                    color: #f33b4a !important;
                     text-shadow: none !important;
                 }
                 .login #nav, .login #backtoblog{
                     text-shadow: none !important;
                 }
                 .login form {
-
-                    box-shadow: 0 1px 3px rgba(0,0,0,.13) !important;
+                    box-shadow: 0 8px 28px rgba(0,0,0,.25) !important;
+                }
+                .login input[type=checkbox]:checked::before{
+                    color: #f33b4a !important;
                 }
             </style>
     <?php } add_action( 'login_enqueue_scripts', 'login_enqueue_scripts' );
+
+function grv_login_logo_url() {
+    return home_url( '/' );
+}
+add_filter( 'login_headerurl', 'grv_login_logo_url' );
+
+function grv_login_logo_title() {
+    return get_bloginfo( 'name' );
+}
+add_filter( 'login_headertext', 'grv_login_logo_title' );

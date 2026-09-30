@@ -1,20 +1,193 @@
 <?php
 
-define( 'sprintcodes_VERSION', '0.0.4' );
+define( 'sprintcodes_VERSION', '0.0.5' );
 add_theme_support( 'post-thumbnails' );
+add_theme_support( 'title-tag' );
 
 if (function_exists('add_image_size')) {
   add_image_size( 'small_thumbnail', 318, 423, true );
+  add_image_size( 'product_thumb', 400, 400, true );
+  add_image_size( 'product_card', 480, 480, true );
+}
+
+register_nav_menus( array(
+  'categorias' => __( 'Menu de Categorias' ),
+) );
+
+/**
+ * Walker do menu de categorias: para cada item de topo que aponta para uma
+ * categoria, adiciona automaticamente um dropdown com as subcategorias reais
+ * da taxonomia (sem precisar cadastrar cada subcategoria manualmente no menu).
+ */
+class GRV_Menu_Walker extends Walker_Nav_Menu {
+  public function start_el( &$output, $item, $depth = 0, $args = null, $id = 0 ) {
+    parent::start_el( $output, $item, $depth, $args, $id );
+
+    if ( $depth !== 0 || $item->object !== 'category' ) {
+      return;
+    }
+
+    $children = get_categories( array(
+      'parent'     => (int) $item->object_id,
+      'hide_empty' => false,
+      'orderby'    => 'name',
+    ) );
+
+    if ( empty( $children ) ) {
+      return;
+    }
+
+    $output .= '<ul class="sub-menu">';
+    foreach ( $children as $child ) {
+      $output .= '<li><a href="' . esc_url( get_category_link( $child->term_id ) ) . '">' . esc_html( $child->name ) . '</a></li>';
+    }
+    $output .= '</ul>';
+  }
+}
+
+/**
+ * Árvore de categorias recursiva (usada no drawer mobile).
+ */
+/**
+ * Breadcrumb simples. $items = [ ['label'=>'Casa','url'=>'...'], ['label'=>'Atual','url'=>null] ]
+ */
+function grv_breadcrumbs( $items ) {
+  if ( empty( $items ) ) {
+    return;
+  }
+  echo '<nav class="container grv-crumbs" aria-label="Trilha de navegação"><ol>';
+  echo '<li><a href="' . esc_url( home_url( '/' ) ) . '">Início</a></li>';
+  $last = count( $items ) - 1;
+  foreach ( $items as $i => $item ) {
+    if ( ! empty( $item['url'] ) && $i !== $last ) {
+      echo '<li><a href="' . esc_url( $item['url'] ) . '">' . esc_html( $item['label'] ) . '</a></li>';
+    } else {
+      echo '<li aria-current="page">' . esc_html( $item['label'] ) . '</li>';
+    }
+  }
+  echo '</ol></nav>';
+}
+
+/**
+ * Categorias ancestrais de um termo, da mais antiga para a mais recente
+ * (não inclui o próprio termo).
+ */
+function grv_category_ancestors( $term ) {
+  $ancestors = array_reverse( get_ancestors( $term->term_id, 'category' ) );
+  $trail = array();
+  foreach ( $ancestors as $ancestor_id ) {
+    $ancestor = get_term( $ancestor_id, 'category' );
+    if ( $ancestor && ! is_wp_error( $ancestor ) ) {
+      $trail[] = array( 'label' => $ancestor->name, 'url' => get_category_link( $ancestor->term_id ) );
+    }
+  }
+  return $trail;
+}
+
+/**
+ * Converte um campo textarea "Rótulo: texto" (uma linha por item) em array
+ * de ['label'=>..,'text'=>..]. Linhas sem ":" viram texto simples (label vazio).
+ */
+function grv_parse_lines( $raw ) {
+  $out = array();
+  if ( empty( $raw ) ) {
+    return $out;
+  }
+  foreach ( preg_split( "/\r\n|\r|\n/", $raw ) as $line ) {
+    $line = trim( $line );
+    if ( $line === '' ) {
+      continue;
+    }
+    if ( strpos( $line, ':' ) !== false ) {
+      list( $label, $text ) = explode( ':', $line, 2 );
+      $out[] = array( 'label' => trim( $label ), 'text' => trim( $text ) );
+    } else {
+      $out[] = array( 'label' => '', 'text' => $line );
+    }
+  }
+  return $out;
+}
+
+/**
+ * Card de produto reaproveitado no grid (categoria, home, relacionados).
+ */
+function grv_product_card( $post_id ) {
+  $title    = get_the_title( $post_id );
+  $url      = get_field( 'url', $post_id );
+  $image    = get_field( 'image', $post_id );
+  $price    = get_field( 'price', $post_id );
+  $old_price= get_field( 'old_price', $post_id );
+  $rating   = get_field( 'rating', $post_id );
+  $reviews  = get_field( 'review_count', $post_id );
+
+  if ( ! $image ) {
+    $image = get_the_post_thumbnail_url( $post_id, 'product_card' );
+  }
+  if ( ! $image ) {
+    $image = get_template_directory_uri() . '/src/images/thumbnail-default.jpg';
+  }
+
+  $link = get_permalink( $post_id );
+  ?>
+  <a class="grv-card" href="<?php echo esc_url( $link ); ?>" title="<?php echo esc_attr( $title ); ?>">
+    <span class="thumb"><img src="<?php echo esc_url( $image ); ?>" alt="<?php echo esc_attr( $title ); ?>" loading="lazy" width="300" height="300"></span>
+    <h3><?php echo esc_html( $title ); ?></h3>
+    <?php if ( $rating ) : ?>
+      <span class="rating"><span class="stars" aria-hidden="true"><?php echo str_repeat( '★', (int) round( $rating ) ) . str_repeat( '☆', 5 - (int) round( $rating ) ); ?></span> <?php echo esc_html( number_format_i18n( $rating, 1 ) ); ?><?php if ( $reviews ) : ?> (<?php echo esc_html( $reviews ); ?>)<?php endif; ?></span>
+    <?php endif; ?>
+    <?php if ( $price ) : ?>
+      <span class="price"><?php if ( $old_price && $old_price > $price ) : ?><span class="old">R$ <?php echo esc_html( number_format( $old_price, 2, ',', '.' ) ); ?></span><?php endif; ?>R$ <?php echo esc_html( number_format( $price, 2, ',', '.' ) ); ?></span>
+    <?php endif; ?>
+    <span class="btn-buy-sm"><?php echo $url ? 'Ver oferta' : 'Ver detalhes'; ?></span>
+  </a>
+  <?php
+}
+
+function grv_category_drawer_tree( $parent_id = 0 ) {
+  $cats = get_categories( array(
+    'parent'     => $parent_id,
+    'hide_empty' => false,
+    'orderby'    => 'name',
+  ) );
+
+  if ( empty( $cats ) ) {
+    return;
+  }
+
+  foreach ( $cats as $cat ) {
+    $has_children = get_categories( array( 'parent' => $cat->term_id, 'hide_empty' => false, 'number' => 1 ) );
+    if ( $has_children ) {
+      echo '<details><summary>' . esc_html( $cat->name ) . '</summary><ul class="grv-drawer-sub"><li><a href="' . esc_url( get_category_link( $cat->term_id ) ) . '">Ver tudo em ' . esc_html( $cat->name ) . '</a></li></ul>';
+      grv_category_drawer_tree( $cat->term_id );
+      echo '</details>';
+    } else {
+      echo '<a class="grv-drawer-flat-link" href="' . esc_url( get_category_link( $cat->term_id ) ) . '">' . esc_html( $cat->name ) . '</a>';
+    }
+  }
 }
 
 remove_action('wp_head', 'print_emoji_detection_script', 7);
 remove_action('wp_print_styles', 'print_emoji_styles');
+
+// Performance: remove desnecessários do <head> (site mais leve)
+remove_action( 'wp_head', 'wp_generator' );
+remove_action( 'wp_head', 'rsd_link' );
+remove_action( 'wp_head', 'wlwmanifest_link' );
+remove_action( 'wp_head', 'wp_shortlink_wp_head' );
+remove_action( 'wp_head', 'adjacent_posts_rel_link_wp_head' );
+add_filter( 'xmlrpc_enabled', '__return_false' );
+add_action( 'init', function () {
+  remove_action( 'wp_head', 'wp_oembed_add_discovery_links' );
+  remove_action( 'wp_head', 'wp_oembed_add_host_js' );
+  wp_deregister_script( 'wp-embed' );
+} );
 
 // Functions
 require(get_template_directory() . '/functions/functions/scripts-footer.php' );
 require(get_template_directory() . '/functions/functions/widgets.php' );
 require(get_template_directory() . '/functions/functions/login-style.php' );
 require(get_template_directory() . '/functions/functions/pagination.php' );
+require(get_template_directory() . '/functions/functions/seo.php' );
 
 // ACF
 require(get_template_directory() . '/functions/acf/scripts-header.php' );

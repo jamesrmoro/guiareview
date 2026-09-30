@@ -1,279 +1,241 @@
 <?php
 /**
- * @package Os 10 Melhores Livros
+ * @package Guia Review
  * @since 0.0.1
  */
 get_header();
-$categories = get_the_category();
 ?>
-	<main>
-		<article <?php if (is_single() && has_category('blog')) echo 'class="category-blog"'; ?>>
+<main>
+<?php while ( have_posts() ) : the_post();
+	$post_id = get_the_ID();
 
-			<?php if (have_posts()): ?>
-				<?php while (have_posts()) : the_post();
-				$url_product = get_field("url");
-				$image_product = get_field("image");
-				?>
-					<section class="container-page">
-						<div class="center">
-							<div class="group-logo">
-								<div></div>
-								<div>
-									<a href="<?php bloginfo('url') ?>" title="<?php bloginfo('site_name') ?>">
-										<img class="logo" width="200px" height="35px" src="<?php bloginfo('template_url') ?>/src/images/logo-guia-review.png" alt="Logo Guia Review">
-										<span class="title-hide">Guia Review</span>
-									</a>
-								</div>
-								<div>
-			                        <button id="openSearchBtn" aria-label="Abrir busca">
-			                            <img src="<?php bloginfo('template_url') ?>/src/images/icon-search.svg" alt="Buscar">
-			                        </button>
-			                    </div>
-							</div>
-							<div class="format-post">
-								<?php if (function_exists('rank_math_the_breadcrumbs')) rank_math_the_breadcrumbs(); ?>
-								<div class="wrapper-post">
-									<div class="image">
-										<?php if($image_product == ""){ ?>
+	$url          = get_field( 'url' );
+	$image        = get_field( 'image' );
+	$gallery      = get_field( 'gallery' );
+	$price        = get_field( 'price' );
+	$old_price    = get_field( 'old_price' );
+	$brand        = get_field( 'brand' );
+	$color        = get_field( 'color' );
+	$rating       = get_field( 'rating' );
+	$review_count = get_field( 'review_count' );
+	$bullets      = grv_parse_lines( get_field( 'bullets' ) );
+	$specs        = grv_parse_lines( get_field( 'specs' ) );
 
-											<?php
-		                                        if (has_post_thumbnail()) {
-		                                            the_post_thumbnail('medium', ['width' => 320, 'height' => 213]);
-		                                        } else {
-		                                            $default_image = get_template_directory_uri() . '/src/images/thumbnail-default.jpg';
-		                                            echo '<img width="320" height="213" src="' . esc_url($default_image) . '" alt="' . esc_attr(get_the_title()) . '" />';
-		                                        }
-		                                    ?>
-		                                <?php } else { ?>
-											<img alt="<?php the_title(); ?>" src="<?php echo $image_product; ?>">
-										<?php } ?>
-									</div>
-									<div class="text">
-										<h1><?php the_title(); ?></h1>
-										<?php if (!has_category('blog')) : ?>
-											<h2 class="title-h2">
-												<?php 
-												$titulo_livro = "Conheça agora um dos " . esc_html($categories[0]->name);
-												$titulo_sem_os = str_replace("Os ", "", $titulo_livro);
-												echo $titulo_sem_os;
-												?>
-											</h2>
-										<?php endif; ?>
-										<?php the_content(); ?>
-										<h2></h2>
-										<ul class="buttons">
-											<li>
-												<a class="button-1" href="<?php echo $url_product; ?>" title="Comprar" target="_blank">
-													<img src="<?php bloginfo('template_url') ?>/src/images/icon-cart.svg" alt="Comprar">
-													<span>Comprar</span>
-												</a>
-											</li>
-											<li>
-												<a class="button-2" href="<?php echo $url_product; ?>" title="Ver preço" target="_blank">
-													<img src="<?php bloginfo('template_url') ?>/src/images/icon-price.svg" alt="Preço">
-													<span>Ver preço</span>
-												</a>
-											</li>
-										</ul>
-									</div>
-								</div>
-								<?php
-								$isbn = get_field("isbn");
-								if($isbn != ""){ ?>
-									<div class="product-detail">
-										<div class="description">
-											<?php
-											$pages = get_field("pages");
-											$language = get_field("language");
-											$measurements = get_field("measurements");
-											$company = get_field("company");
-											if($pages != ""){ ?>
-												<div class="item detail">
-													<label>Páginas</label>
-													<span><?php echo $pages; ?></span>
-												</div>
-											<?php }
-											if($language != ""){ ?>
-												<div class="item detail">
-													<label>Idioma</label>
-													<span><?php echo $language; ?></span>
-												</div>
-											<?php }
-											if($isbn != ""){ ?>
-												<div class="item detail">
-													<label>ISBN</label>
-													<span><?php echo $isbn; ?></span>
-												</div>
-											<?php }
-											if($measurements != ""){ ?>
-												<div class="item detail">
-													<label>Medidas</label>
-													<span><?php echo $measurements; ?></span>
-												</div>
-											<?php }
-											if($company != ""){ ?>
-												<div class="item detail">
-													<label>Editora</label>
-													<span><?php echo $company; ?></span>
-												</div>
-											<?php } ?>
-										</div>
-									</div>
-								<?php } ?>
-							</div>
-						</div>
-					</section>
-				<?php endwhile; ?>
-			<?php endif; wp_reset_postdata(); ?>
-			<?php if (!has_category('blog')) : ?>
-				<div class="other-books">
-					<div class="center">
-						<h3 class="title-other-books title-padding-mobile"><?php echo esc_html($categories[0]->name); ?></h3>
-						<?php
-						$current_category = get_the_category()[0]->cat_ID;
-					    $args = array(
-					        'cat'            => $current_category,  
-					        'posts_per_page' => 10,
-					        'post__not_in'   => array(get_the_ID()),
-					    );
-					    $query = new WP_Query($args);
-					    if ($query->have_posts()):
-					    	echo '<div class="books-container">';
-						        while ($query->have_posts()) : $query->the_post();
-						        	$url_product = get_field("url");
-									$image_product = get_field("image");
-									$thumbnail_url = get_the_post_thumbnail_url(get_the_ID(), 'small_thumbnail');
-						        ?>
+	// Campos legados (posts antigos, ex.: livros) — só aparecem se preenchidos.
+	$legacy = array(
+		'Autor'              => get_field( 'author' ),
+		'Editora'            => get_field( 'company' ),
+		'Páginas'            => get_field( 'pages' ),
+		'Idioma'             => get_field( 'language' ),
+		'ISBN'               => get_field( 'isbn' ),
+		'ISBN-13'            => get_field( 'isbn_13' ),
+		'Medidas'            => get_field( 'measurements' ),
+		'Data de publicação' => get_field( 'date_published' ),
+	);
+	$legacy = array_filter( $legacy, function ( $v ) { return $v !== '' && $v !== false && $v !== null; } );
 
-						        <div class="book-item">
-							        <a href="<?php echo $url_product; ?>" rel="nofollow" target="_blank" title="<?php the_title(); ?>">
-							        	<img src="<?php echo $thumbnail_url; ?>" alt="<?php the_title(); ?>">
-							        </a>
-							        <a class="buy" href="<?php echo $url_product; ?>" rel="nofollow" target="_blank" title="Comprar livro">
-							        	<span>Ver preço</span>
-							        	<svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" width="12" height="12" x="0" y="0" viewBox="0 0 512 512" style="enable-background:new 0 0 512 512" xml:space="preserve" class=""><g><path d="m506.134 241.843-.018-.019-104.504-104c-7.829-7.791-20.492-7.762-28.285.068-7.792 7.829-7.762 20.492.067 28.284L443.558 236H20c-11.046 0-20 8.954-20 20s8.954 20 20 20h423.557l-70.162 69.824c-7.829 7.792-7.859 20.455-.067 28.284 7.793 7.831 20.457 7.858 28.285.068l104.504-104 .018-.019c7.833-7.818 7.808-20.522-.001-28.314z" fill="#fff" opacity="1" data-original="#000000" class=""></path></g></svg>
-							        </a>
-						        </div>
+	// Galeria: campo gallery > campo image (legado) > imagem destacada > placeholder.
+	// Alguns posts antigos já tinham um meta "gallery" próprio (lista de IDs de
+	// anexo) antes deste campo ACF existir — por isso tratamos os dois formatos.
+	$images = array();
+	if ( $gallery && is_array( $gallery ) ) {
+		foreach ( $gallery as $g ) {
+			if ( is_array( $g ) && ! empty( $g['url'] ) ) {
+				$images[] = array( 'url' => $g['url'], 'alt' => $g['alt'] ?: get_the_title() );
+			} elseif ( is_numeric( $g ) ) {
+				$url = wp_get_attachment_image_url( (int) $g, 'large' );
+				if ( $url ) {
+					$images[] = array( 'url' => $url, 'alt' => get_the_title() );
+				}
+			}
+		}
+	}
+	if ( empty( $images ) && $image ) {
+		$images[] = array( 'url' => $image, 'alt' => get_the_title() );
+	}
+	if ( empty( $images ) && has_post_thumbnail() ) {
+		$images[] = array( 'url' => get_the_post_thumbnail_url( $post_id, 'large' ), 'alt' => get_the_title() );
+	}
+	if ( empty( $images ) ) {
+		$images[] = array( 'url' => get_template_directory_uri() . '/src/images/thumbnail-default.jpg', 'alt' => get_the_title() );
+	}
 
-						        <?php endwhile;
-					        echo '</div>';
-					        wp_reset_postdata();
-					    else :
-					        echo 'Não há posts nesta categoria.';
-					    endif;
-						?>
-					</div>
-				</div>
+	$categories   = get_the_category();
+	$primary_cat  = $categories ? $categories[0] : null;
+	$trail        = $primary_cat ? grv_category_ancestors( $primary_cat ) : array();
+	if ( $primary_cat ) {
+		$trail[] = array( 'label' => $primary_cat->name, 'url' => get_category_link( $primary_cat->term_id ) );
+	}
+	$trail[] = array( 'label' => get_the_title(), 'url' => null );
+	?>
+
+	<?php grv_breadcrumbs( $trail ); ?>
+
+	<article class="container grv-product">
+		<div class="grv-gallery" id="grvGallery">
+			<?php if ( count( $images ) > 1 ) : ?>
+			<ul class="thumbs">
+				<?php foreach ( $images as $i => $img ) : ?>
+					<li><button class="grv-thumb<?php echo $i === 0 ? ' is-active' : ''; ?>" data-full="<?php echo esc_url( $img['url'] ); ?>" aria-label="Imagem <?php echo $i + 1; ?>">
+						<img src="<?php echo esc_url( $img['url'] ); ?>" alt="<?php echo esc_attr( $img['alt'] ); ?>" width="60" height="60" <?php echo $i > 0 ? 'loading="lazy"' : ''; ?>>
+					</button></li>
+				<?php endforeach; ?>
+			</ul>
 			<?php endif; ?>
-			<div class="ads-amazon">
-				<div class="center">
-					<h2>Como escolher o melhor produto para comprar?</h2>
+			<figure class="grv-stage" id="grvStage">
+				<img id="grvMainImg" src="<?php echo esc_url( $images[0]['url'] ); ?>" alt="<?php echo esc_attr( $images[0]['alt'] ); ?>" width="600" height="600" fetchpriority="high">
+			</figure>
+		</div>
 
-					<ul>
-						<li>
-							Analise quais características são realmente importantes para o seu uso, como tamanho, capacidade, desempenho, funcionalidades e facilidade de utilização.
-						</li>
+		<div class="grv-info">
+			<h1><?php the_title(); ?></h1>
+			<?php if ( $brand ) : ?><p class="brand-link"><?php echo esc_html( $brand ); ?></p><?php endif; ?>
 
-						<li>
-							Compare diferentes modelos da mesma categoria para identificar qual oferece o melhor equilíbrio entre qualidade, recursos e preço.
-						</li>
-
-						<li>
-							Verifique as especificações técnicas, as dimensões e os requisitos de instalação para garantir que o produto seja adequado ao espaço e às suas necessidades.
-						</li>
-
-						<li>
-							Consulte as avaliações de outros consumidores, observando principalmente os comentários sobre durabilidade, desempenho e possíveis problemas recorrentes.
-						</li>
-
-						<li>
-							Considere a reputação da marca, o período de garantia e a disponibilidade de assistência técnica antes de concluir a compra.
-						</li>
-
-						<li>
-							Por fim, pesquise os preços em diferentes lojas e confira as condições de entrega para encontrar a opção com o melhor custo-benefício.
-						</li>
-					</ul>
-				</div>
-			</div>
-			<?php if (!has_category('blog')) : ?>
-				<div class="list-books">
-					<div class="center">
-						<h3 class="title-padding-mobile"><?php 
-							$titulo_livro = "Conheça outros " . esc_html($categories[0]->name);
-							$titulo_sem_os = str_replace("Os ", "", $titulo_livro);
-							echo $titulo_sem_os;
-							?> recomendado por usuários</h3>
-					</div>
-					<?php
-						$current_category = get_the_category()[0]->cat_ID;
-					    $args = array(
-					        'cat'            => $current_category,  
-					        'posts_per_page' => 10,
-					        'post__not_in'   => array(get_the_ID()),
-					    );
-					    $query = new WP_Query($args);
-					    if ($query->have_posts()):
-					    	echo '<div class="books-description">';
-						        while ($query->have_posts()) : $query->the_post();
-						        	$url_product = get_field("url");
-									$image_product = get_field("image");
-									$thumbnail_url = get_the_post_thumbnail_url(get_the_ID(), 'small_thumbnail');
-						        ?>
-
-						        <div class="book-item-description">
-						        	<div class="center">
-						        		<div class="group">
-								        	<div class="image">
-										        <a href="<?php echo $url_product; ?>" rel="nofollow" target="_blank" title="<?php the_title(); ?>">
-										        	<img src="<?php echo $thumbnail_url; ?>" alt="<?php the_title(); ?>">
-										        </a>
-									        </div>
-									        <div class="text">
-										        <h4><?php the_title(); ?></h4>
-										        <?php the_content(); ?>
-										        <a class="buy" href="<?php echo $url_product; ?>" rel="nofollow" target="_blank" title="Ver preço">
-										        	<span>Ver preço</span>
-										        	<svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" width="12" height="12" x="0" y="0" viewBox="0 0 512 512" style="enable-background:new 0 0 512 512" xml:space="preserve" class=""><g><path d="m506.134 241.843-.018-.019-104.504-104c-7.829-7.791-20.492-7.762-28.285.068-7.792 7.829-7.762 20.492.067 28.284L443.558 236H20c-11.046 0-20 8.954-20 20s8.954 20 20 20h423.557l-70.162 69.824c-7.829 7.792-7.859 20.455-.067 28.284 7.793 7.831 20.457 7.858 28.285.068l104.504-104 .018-.019c7.833-7.818 7.808-20.522-.001-28.314z" fill="#fff" opacity="1" data-original="#000000" class=""></path></g></svg>
-										        </a>
-									        </div>
-								        </div>
-							        </div>
-						        </div>
-
-						        <?php endwhile;
-					        echo '</div>';
-					        wp_reset_postdata();
-					    else :
-					        echo 'Não há posts nesta categoria.';
-					    endif;
-						?>
-				</div>
+			<?php if ( $rating ) : ?>
+				<p class="grv-rating" aria-label="Avaliação: <?php echo esc_attr( number_format_i18n( $rating, 1 ) ); ?> de 5 estrelas<?php echo $review_count ? ', ' . esc_attr( $review_count ) . ' avaliações' : ''; ?>">
+					<span class="stars" aria-hidden="true"><?php echo str_repeat( '★', (int) round( $rating ) ) . str_repeat( '☆', 5 - (int) round( $rating ) ); ?></span>
+					<span><?php echo esc_html( number_format_i18n( $rating, 1 ) ); ?></span>
+					<?php if ( $review_count ) : ?><a href="#grvReviewsInfo"><?php echo esc_html( $review_count ); ?> avaliações</a><?php endif; ?>
+				</p>
 			<?php endif; ?>
-			<div class="center">
-				<a class="banner" href="https://amzn.to/4bycyaW" target="_blank" rel="nofollow" title="Amazon Ofertas">
-					<img src="<?php bloginfo("template_url"); ?>/src/images/banner-ofertas-amazon.jpg" alt="Amazon Ofertas">
-				</a>
 
-				<h5 class="title-page title-padding-mobile">Termos relacionados a <?php the_title(); ?></h5>
+			<?php if ( $brand || $color || $price ) : ?>
+				<table class="grv-quick-specs">
+					<?php if ( $brand ) : ?><tr><th>Marca</th><td><?php echo esc_html( $brand ); ?></td></tr><?php endif; ?>
+					<?php if ( $color ) : ?><tr><th>Cor</th><td><?php echo esc_html( $color ); ?></td></tr><?php endif; ?>
+					<?php if ( $price ) : ?><tr><th>Preço</th><td>R$ <?php echo esc_html( number_format( $price, 2, ',', '.' ) ); ?></td></tr><?php endif; ?>
+				</table>
+			<?php endif; ?>
 
-				<?php the_tags('<ul class="list-categories list-tags"><li>', '</li><li>', '</li></ul>'); ?>
+			<?php the_content(); ?>
 
-				<h6 class="title-page">Confira outras seleções de melhores produtos</h6>
+			<?php if ( $bullets ) : ?>
+				<h2 class="sr-only">Destaques do produto</h2>
+				<ul class="grv-bullets">
+					<?php foreach ( $bullets as $b ) : ?>
+						<li><?php if ( $b['label'] ) : ?><strong><?php echo esc_html( $b['label'] ); ?>:</strong> <?php endif; echo esc_html( $b['text'] ); ?></li>
+					<?php endforeach; ?>
+				</ul>
+			<?php endif; ?>
+		</div>
 
-				<?php
-				$categories = get_categories();
-					if (!empty($categories)) {
-					    echo '<ul class="list-categories">';
-					    foreach ($categories as $category) {
-					        echo '<li><a href="' . get_category_link($category->term_id) . '">' . $category->name . '</a></li>';
-					    }				    
-					    echo '</ul>';
-					} else {
-					    echo 'Nenhuma categoria encontrada.';
-					}
-				?>
-			</div>
-		</article>
-	</main>
+		<aside class="grv-buybox" aria-label="Comprar">
+			<h2 class="sr-only">Comprar</h2>
+			<?php if ( $price ) : ?>
+				<p class="price">
+					<?php if ( $old_price && $old_price > $price ) : ?><span class="old">R$ <?php echo esc_html( number_format( $old_price, 2, ',', '.' ) ); ?></span><?php endif; ?>
+					R$ <?php echo esc_html( number_format( $price, 2, ',', '.' ) ); ?>
+				</p>
+			<?php endif; ?>
+			<p class="stock">Disponível</p>
+			<p class="muted">Preço e disponibilidade podem mudar no site do vendedor.</p>
+			<?php if ( $url ) : ?>
+				<a class="btn-buy" href="<?php echo esc_url( $url ); ?>" target="_blank" rel="nofollow sponsored noopener" title="Ver oferta">Ver oferta</a>
+				<a class="btn-buy-2" href="<?php echo esc_url( $url ); ?>" target="_blank" rel="nofollow sponsored noopener" title="Comprar">Comprar agora</a>
+			<?php endif; ?>
+		</aside>
+	</article>
+
+	<?php if ( $specs || $legacy ) : ?>
+	<section class="container grv-block grv-accordion" id="grvReviewsInfo">
+		<h2>Informações do produto</h2>
+		<?php if ( $specs ) : ?>
+			<details open>
+				<summary>Especificações técnicas</summary>
+				<table class="specs">
+					<?php foreach ( $specs as $s ) : ?>
+						<tr><th><?php echo esc_html( $s['label'] ?: '—' ); ?></th><td><?php echo esc_html( $s['text'] ); ?></td></tr>
+					<?php endforeach; ?>
+				</table>
+			</details>
+		<?php endif; ?>
+		<?php if ( $legacy ) : ?>
+			<details<?php echo $specs ? '' : ' open'; ?>>
+				<summary>Detalhes adicionais</summary>
+				<table class="specs">
+					<?php foreach ( $legacy as $label => $value ) : ?>
+						<tr><th><?php echo esc_html( $label ); ?></th><td><?php echo esc_html( $value ); ?></td></tr>
+					<?php endforeach; ?>
+				</table>
+			</details>
+		<?php endif; ?>
+	</section>
+	<?php endif; ?>
+
+	<?php
+	if ( $primary_cat ) {
+		$related = new WP_Query( array(
+			'cat'            => $primary_cat->term_id,
+			'posts_per_page' => 8,
+			'post__not_in'   => array( $post_id ),
+			'ignore_sticky_posts' => true,
+		) );
+		if ( $related->have_posts() ) :
+			?>
+			<section class="container grv-block grv-related">
+				<h2><?php echo esc_html( 'Mais em ' . $primary_cat->name ); ?></h2>
+				<div class="grv-grid">
+					<?php while ( $related->have_posts() ) : $related->the_post(); grv_product_card( get_the_ID() ); endwhile; ?>
+				</div>
+			</section>
+			<?php
+		endif;
+		wp_reset_postdata();
+	}
+	?>
+
+	<?php
+	// JSON-LD Product — só inclui offers/aggregateRating quando os dados existem de verdade.
+	$schema = array(
+		'@context' => 'https://schema.org',
+		'@type'    => 'Product',
+		'name'     => get_the_title(),
+		'image'    => wp_list_pluck( $images, 'url' ),
+	);
+	if ( has_excerpt() || get_the_excerpt() ) {
+		$schema['description'] = wp_strip_all_tags( get_the_excerpt() );
+	}
+	if ( $brand ) {
+		$schema['brand'] = array( '@type' => 'Brand', 'name' => $brand );
+	}
+	if ( $color ) {
+		$schema['color'] = $color;
+	}
+	if ( $price ) {
+		$schema['offers'] = array(
+			'@type'         => 'Offer',
+			'priceCurrency' => 'BRL',
+			'price'         => (string) $price,
+			'availability'  => 'https://schema.org/InStock',
+			'url'           => $url ?: get_permalink(),
+		);
+	}
+	if ( $rating && $review_count ) {
+		$schema['aggregateRating'] = array(
+			'@type'       => 'AggregateRating',
+			'ratingValue' => (string) $rating,
+			'reviewCount' => (string) $review_count,
+		);
+	}
+	?>
+	<script type="application/ld+json"><?php echo wp_json_encode( $schema, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES ); ?></script>
+
+	<script>
+	(function () {
+		var gallery = document.getElementById('grvGallery');
+		if (!gallery) return;
+		var mainImg = document.getElementById('grvMainImg');
+		var thumbs = gallery.querySelectorAll('.grv-thumb');
+		thumbs.forEach(function (t) {
+			t.addEventListener('click', function () {
+				mainImg.src = t.dataset.full;
+				mainImg.alt = t.querySelector('img').alt;
+				thumbs.forEach(function (x) { x.classList.toggle('is-active', x === t); });
+			});
+		});
+	})();
+	</script>
+
+<?php endwhile; ?>
+</main>
 <?php get_footer(); ?>
