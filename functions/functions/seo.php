@@ -48,6 +48,10 @@ function grv_canonical_url() {
 
 add_action( 'wp_head', 'grv_seo_head_tags', 1 );
 function grv_seo_head_tags() {
+	// Let the active SEO plugin own canonical, social and description metadata.
+	if ( defined( 'WPSEO_VERSION' ) ) {
+		return;
+	}
 	$description = grv_meta_description();
 	$canonical   = grv_canonical_url();
 	$title       = wp_get_document_title();

@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/functions/yoast-native.php';
 
 define( 'sprintcodes_VERSION', '0.0.7' );
 add_theme_support( 'post-thumbnails' );
@@ -111,14 +112,36 @@ function grv_parse_lines( $raw ) {
 /**
  * Card de produto reaproveitado no grid (categoria, home, relacionados).
  */
+/** Unique published products in each category and all its descendants. */
+function grv_category_product_counts() {
+  global $wpdb;
+  $terms = get_terms( array( 'taxonomy' => 'category', 'hide_empty' => false ) );
+  if ( is_wp_error( $terms ) ) { return array(); }
+  $parents = array(); $products = array();
+  foreach ( $terms as $term ) { $parents[$term->term_id] = (int) $term->parent; }
+  $rows = $wpdb->get_results( "SELECT DISTINCT tt.term_id, p.ID FROM {$wpdb->posts} p INNER JOIN {$wpdb->term_relationships} tr ON tr.object_id = p.ID INNER JOIN {$wpdb->term_taxonomy} tt ON tt.term_taxonomy_id = tr.term_taxonomy_id WHERE p.post_type = 'post' AND p.post_status = 'publish' AND tt.taxonomy = 'category'" );
+  foreach ( $rows as $row ) {
+    $id = (int) $row->term_id; $visited = array();
+    while ( $id && ! isset( $visited[$id] ) ) {
+      $visited[$id] = true; $products[$id][$row->ID] = true; $id = $parents[$id] ?? 0;
+    }
+  }
+  return array_map( 'count', $products );
+}
+add_action( 'pre_get_posts', function ( $query ) {
+  if ( ! is_admin() && $query->is_main_query() && $query->is_search() ) {
+    $query->set( 'post_type', 'post' ); $query->set( 'posts_per_page', 12 );
+  }
+} );
+
 function grv_product_card( $post_id ) {
   $title    = get_the_title( $post_id );
-  $url      = get_field( 'url', $post_id );
-  $image    = get_field( 'image', $post_id );
-  $price    = get_field( 'price', $post_id );
-  $old_price= get_field( 'old_price', $post_id );
-  $rating   = get_field( 'rating', $post_id );
-  $reviews  = get_field( 'review_count', $post_id );
+  $url      = grv_get_field( 'url', $post_id );
+  $image    = grv_get_field( 'image', $post_id );
+  $price    = grv_get_field( 'price', $post_id );
+  $old_price= grv_get_field( 'old_price', $post_id );
+  $rating   = grv_get_field( 'rating', $post_id );
+  $reviews  = grv_get_field( 'review_count', $post_id );
 
   if ( ! $image ) {
     $image = get_the_post_thumbnail_url( $post_id, 'product_card' );
@@ -129,17 +152,19 @@ function grv_product_card( $post_id ) {
 
   $link = get_permalink( $post_id );
   ?>
-  <a class="grv-card" href="<?php echo esc_url( $link ); ?>" title="<?php echo esc_attr( $title ); ?>">
+  <article class="grv-card">
+    <a class="grv-card-main" href="<?php echo esc_url( $link ); ?>" title="<?php echo esc_attr( $title ); ?>">
     <span class="thumb"><img src="<?php echo esc_url( $image ); ?>" alt="<?php echo esc_attr( $title ); ?>" loading="lazy" width="300" height="300"></span>
     <h3><?php echo esc_html( $title ); ?></h3>
+    </a>
     <?php if ( $rating ) : ?>
-      <span class="rating"><span class="stars" aria-hidden="true"><?php echo str_repeat( '★', (int) round( $rating ) ) . str_repeat( '☆', 5 - (int) round( $rating ) ); ?></span> <?php echo esc_html( number_format_i18n( $rating, 1 ) ); ?><?php if ( $reviews ) : ?> (<?php echo esc_html( $reviews ); ?>)<?php endif; ?></span>
+      <span class="rating"><span class="stars" aria-hidden="true"><?php echo str_repeat( '★', (int) round( $rating ) ) . str_repeat( '☆', 5 - (int) round( $rating ) ); ?></span> <?php echo esc_html( number_format_i18n( $rating, 1 ) ); ?><?php if ( $reviews ) : ?><?php if ( $url ) : ?><a class="grv-card-reviews" href="<?php echo esc_url( $url ); ?>" <?php echo grv_offer_attributes( $post_id ); ?> target="_blank" rel="nofollow sponsored noopener noreferrer" aria-label="Ver avaliações de <?php echo esc_attr( $title ); ?> na loja">(<?php echo esc_html( number_format_i18n( $reviews ) ); ?>)</a><?php else : ?><span>(<?php echo esc_html( number_format_i18n( $reviews ) ); ?>)</span><?php endif; ?><?php endif; ?></span>
     <?php endif; ?>
     <?php if ( $price ) : ?>
       <span class="price"><?php if ( $old_price && $old_price > $price ) : ?><span class="old">R$ <?php echo esc_html( number_format( $old_price, 2, ',', '.' ) ); ?></span><?php endif; ?>R$ <?php echo esc_html( number_format( $price, 2, ',', '.' ) ); ?></span>
     <?php endif; ?>
-    <span class="btn-buy-sm"><?php echo $url ? 'Ver oferta' : 'Ver detalhes'; ?></span>
-  </a>
+    <a class="btn-buy-sm" href="<?php echo esc_url( $link ); ?>"><?php echo $url ? 'Ver oferta' : 'Ver detalhes'; ?></a>
+  </article>
   <?php
 }
 
@@ -189,11 +214,12 @@ require(get_template_directory() . '/functions/functions/login-style.php' );
 require(get_template_directory() . '/functions/functions/pagination.php' );
 require(get_template_directory() . '/functions/functions/seo.php' );
 
-// ACF
-require(get_template_directory() . '/functions/acf/scripts-header.php' );
-require(get_template_directory() . '/functions/acf/scripts-footer.php' );
-require(get_template_directory() . '/functions/acf/tutorial.php' );
-require(get_template_directory() . '/functions/acf/config-page.php' );
+// Campos nativos do WordPress.
+require get_template_directory() . '/functions/native-fields.php';
+require get_template_directory() . '/functions/affiliate-links.php';
+require get_template_directory() . '/functions/advertisements.php';
+require get_template_directory() . '/functions/dashboard-progress.php';
+require get_template_directory() . '/favicon/favicon.php';
 
 add_filter( 'use_widgets_block_editor', '__return_false' );
 
@@ -353,214 +379,30 @@ function adicionar_scripts() {
 add_action('wp_enqueue_scripts', 'adicionar_scripts');
 
 
-define('ENVIAR_EMAIL_POR_CLIQUE', false); // ou false para desativar
-
-add_action('wp_ajax_enviar_clique_anuncio', 'enviar_clique_anuncio');
-add_action('wp_ajax_nopriv_enviar_clique_anuncio', 'enviar_clique_anuncio');
-
-function enviar_clique_anuncio() {
-    date_default_timezone_set('America/Sao_Paulo');
-
-    if (!function_exists('update_field')) {
-        wp_send_json_error(['message' => 'ACF não disponível']);
-        return;
-    }
-
-    $anuncio_id   = isset($_POST['anuncio']) ? sanitize_text_field($_POST['anuncio']) : 'desconhecido';
-    $pagina       = isset($_POST['pagina']) ? esc_url_raw($_POST['pagina']) : 'página desconhecida';
-    $tipo_clique  = isset($_POST['tipo']) ? sanitize_text_field($_POST['tipo']) : 'desconhecido';
-    $ip           = $_SERVER['REMOTE_ADDR'];
-    $user_agent   = $_SERVER['HTTP_USER_AGENT'];
-    $data         = date('d/m/Y');
-    $hora         = date('H:i:s');
-
-    // Cidade via IP
-    $cidade = 'Desconhecida';
-    $geo = @file_get_contents("http://ip-api.com/json/$ip?fields=city,status");
-    if ($geo) {
-        $geo_data = json_decode($geo);
-        if ($geo_data && $geo_data->status === 'success') {
-            $cidade = $geo_data->city;
-        }
-    }
-
-    // Sistema operacional
-    $so = 'Desconhecido';
-    if (stripos($user_agent, 'Windows') !== false) $so = 'Windows';
-    elseif (stripos($user_agent, 'Mac OS') !== false) $so = 'macOS';
-    elseif (stripos($user_agent, 'Linux') !== false) $so = 'Linux';
-    elseif (stripos($user_agent, 'Android') !== false) $so = 'Android';
-    elseif (stripos($user_agent, 'like Mac') !== false) $so = 'iOS';
-
-    // Emoji e nome do anúncio
-    switch ($anuncio_id) {
-        case 'ads-1':
-            $nome_anuncio = 'Kindle Colorsoft - rodapé';
-            $emoji = '🔵';
-            break;
-        case 'ads-2':
-            $nome_anuncio = 'Kindle Colorsoft - modal';
-            $emoji = '🟣';
-            break;
-        case 'ads-3':
-            $nome_anuncio = 'Close';
-            $emoji = '🔴';
-            break;
-        default:
-            $nome_anuncio = 'Anúncio desconhecido';
-            $emoji = '⚪️';
-    }
-
-    // Registro
-    $registro = [
-        'data' => $data,
-        'hora' => $hora,
-        'link' => $pagina,
-        'tipo_de_clique' => $tipo_clique,
-        'sistema_operacional' => $so,
-        'user_agent' => $user_agent,
-        'anuncio_id' => $anuncio_id // <--- novo campo
-    ];
-
-    // JSON ACF (field: report_log)
-    $historico = get_field('report_log', 'option');
-    $historico_array = [];
-
-    if ($historico) {
-        $historico_array = json_decode($historico, true);
-        if (!is_array($historico_array)) {
-            $historico_array = [];
-        }
-    }
-
-    $historico_array[] = $registro;
-    update_field('report_log', json_encode($historico_array, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE), 'option');
-
-    // Enviar email
-    if (defined('ENVIAR_EMAIL_POR_CLIQUE') && ENVIAR_EMAIL_POR_CLIQUE === true) {
-        $to = 'jamesrmoro@gmail.com';
-        $subject = "$emoji $nome_anuncio - $hora";
-        $message = "
-            <strong>Anúncio:</strong> $nome_anuncio<br>
-            <strong>Página:</strong> <a href=\"$pagina\">$pagina</a><br>
-            <strong>Tipo:</strong> $tipo_clique<br>
-            <strong>Sistema:</strong> $so<br>
-            <strong>Cidade:</strong> $cidade<br>
-            <strong>User Agent:</strong> $user_agent<br>
-            <strong>Data/Hora:</strong> $data $hora
-        ";
-        $headers = [
-            'Content-Type: text/html; charset=UTF-8',
-            'From: Os 10 melhores livros <contato@os10melhoreslivros.com.br>'
-        ];
-
-        wp_mail($to, $subject, $message, $headers);
-    }
-
-    wp_send_json_success(['message' => 'Clique registrado com sucesso']);
-}
-
-add_action('init', function () {
-    $hook = 'enviar_relatorio_diario_cliques';
-
-    // Cancela agendamento antigo (se existir)
-    if ($timestamp = wp_next_scheduled($hook)) {
-        wp_unschedule_event($timestamp, $hook);
-    }
-
-    // Cria novo agendamento com novo horário
-    wp_schedule_event(strtotime('23:55:00'), 'daily', $hook);
-});
-
-add_action('enviar_relatorio_diario_cliques', 'funcao_enviar_relatorio_cliques');
-
-function funcao_enviar_relatorio_cliques() {
-    $json = get_field('report_log', 'option');
-    $registros = json_decode($json, true);
-
-    if (empty($registros) || !is_array($registros)) {
-        return;
-    }
-
-    // Filtra apenas os cliques de hoje
-    $hoje = date('d/m/Y');
-    $cliques_hoje = array_filter($registros, function ($item) use ($hoje) {
-        return isset($item['data']) && $item['data'] === $hoje;
-    });
-
-    if (empty($cliques_hoje)) return;
-
-    // Contagem por tipo
-    $contagem = [
-        'ads-1' => 0,
-        'ads-2' => 0,
-        'ads-3' => 0
-    ];
-
-    foreach ($cliques_hoje as $item) {
-        $id = $item['anuncio_id'] ?? '';
-        if (isset($contagem[$id])) {
-            $contagem[$id]++;
-        }
-    }
-
-    // Monta o corpo do e-mail
-    $mensagem = "<h2>📊 Relatório de Cliques - $hoje</h2>";
-    $mensagem .= "<ul>";
-    $mensagem .= "<li>🔵 Kindle Colorsoft - rodapé: {$contagem['ads-1']}</li>";
-    $mensagem .= "<li>🟣 Kindle Colorsoft - modal: {$contagem['ads-2']}</li>";
-    $mensagem .= "<li>🔴 Fechou anúncio: {$contagem['ads-3']}</li>";
-    $mensagem .= "</ul>";
-    $mensagem .= "<hr><h3>Detalhes:</h3><ul>";
-
-    foreach ($cliques_hoje as $item) {
-        $hora = $item['hora'] ?? '-';
-        $link = $item['link'] ?? '-';
-        $so = $item['sistema_operacional'] ?? '-';
-        $tipo = $item['tipo_de_clique'] ?? '-';
-
-        $anuncio_id = isset($item['anuncio_id'])
-            ? $item['anuncio_id']
-            : '';
-
-        switch ($anuncio_id) {
-            case 'ads-1':
-                $emoji = '🔵 rodapé';
-                break;
-
-            case 'ads-2':
-                $emoji = '🟣 modal';
-                break;
-
-            case 'ads-3':
-                $emoji = '🔴 fechou';
-                break;
-
-            default:
-                $emoji = '⚪️';
-                break;
-        }
-
-        $mensagem .= "<li>$emoji às <strong>$hora</strong> — <a href=\"$link\">$link</a> — $tipo — $so</li>";
-    }
-    $mensagem .= "</ul>";
-
-    // Envia o e-mail
-    $headers = [
-        'Content-Type: text/html; charset=UTF-8',
-        'From: Os 10 melhores livros <contato@os10melhoreslivros.com.br>'
-    ];
-
-    wp_mail('jamesrmoro@gmail.com', "📬 Relatório de Cliques - $hoje", $mensagem, $headers);
-}
-
-
 // Altera o nome do remetente
 add_filter('wp_mail_from_name', function($name) {
-    return 'Os 10 Melhores Livros'; // Nome que aparecerá
+    return 'Guia Review';
 });
 
 // Altera o e-mail do remetente
 add_filter('wp_mail_from', function($email) {
-    return 'contato@os10melhoreslivros.com.br'; // Endereço de email que aparecerá
+    return 'contato@guiareview.com.br';
 });
+
+// Preserve bookmarks for the former duplicate category and privacy URL.
+add_action( 'template_redirect', function () {
+    $path = trim( (string) wp_parse_url( wp_unslash( $_SERVER['REQUEST_URI'] ?? '' ), PHP_URL_PATH ), '/' );
+    $base = trim( (string) wp_parse_url( home_url( '/' ), PHP_URL_PATH ), '/' );
+    if ( $base && strpos( $path, $base . '/' ) === 0 ) { $path = substr( $path, strlen( $base ) + 1 ); }
+    if ( $path === 'privacy' ) {
+        wp_safe_redirect( get_privacy_policy_url() ?: home_url( '/politica-de-privacidade/' ), 301 );
+        exit;
+    }
+    $redirects = get_option( 'grv_category_redirects', array() );
+    foreach ( $redirects as $slug => $term_id ) {
+        if ( $path === 'category/' . $slug || ( isset( $_GET['cat'] ) && (int) $_GET['cat'] === 80 ) ) {
+            $url = get_category_link( $term_id );
+            if ( ! is_wp_error( $url ) ) { wp_safe_redirect( $url, 301 ); exit; }
+        }
+    }
+} );

@@ -101,16 +101,16 @@ wp_update_attachment_metadata( $attach_id, $attach_data );
 set_post_thumbnail( $post_id, $attach_id );
 
 //Update fields ACF
-update_field("url", $url_afiliado, $post_id);
-update_field("pages", $pages_count, $post_id);
-update_field("language", $language, $post_id);
-update_field("company", $company, $post_id);
-update_field("date_published", $date_published, $post_id);
-update_field("isbn", $isbn_10, $post_id);
-update_field("isbn_13", $isbn_13, $post_id);
-update_field("measurements", $dimensions, $post_id);
-update_field("image", $attach_id, $post_id);
-update_field("author", $author, $post_id);
+grv_update_field("url", $url_afiliado, $post_id);
+grv_update_field("pages", $pages_count, $post_id);
+grv_update_field("language", $language, $post_id);
+grv_update_field("company", $company, $post_id);
+grv_update_field("date_published", $date_published, $post_id);
+grv_update_field("isbn", $isbn_10, $post_id);
+grv_update_field("isbn_13", $isbn_13, $post_id);
+grv_update_field("measurements", $dimensions, $post_id);
+grv_update_field("image", $attach_id, $post_id);
+grv_update_field("author", $author, $post_id);
 
 $dataPost = [];
 $dataPost['sucesso'] = true;

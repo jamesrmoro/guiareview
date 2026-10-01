@@ -1,0 +1,37 @@
+{
+    "name": "Guia Review",
+    "short_name": "Guia Review",
+    "id": "../../../../",
+    "start_url": "../../../../",
+    "scope": "../../../../",
+    "display": "standalone",
+    "lang": "pt-BR",
+    "background_color": "#ffffff",
+    "theme_color": "#131921",
+    "icons": [
+        {
+            "src": "images/android-chrome-192x192.png?v=48499ad50147",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "images/android-chrome-512x512.png?v=5cc11688e0f4",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "images/maskable-192x192.png?v=836e396cb9db",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "maskable"
+        },
+        {
+            "src": "images/maskable-512x512.png?v=d39a9f569aa2",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "maskable"
+        }
+    ]
+}

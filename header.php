@@ -8,16 +8,7 @@
 	<meta name="theme-color" content="<?php echo esc_attr( $color ); ?>">
 	<meta name="msapplication-navbutton-color" content="<?php echo esc_attr( $color ); ?>">
 	<meta name="apple-mobile-web-app-status-bar-style" content="<?php echo esc_attr( $color ); ?>">
-	<link rel="mask-icon" href="<?php bloginfo('template_url') ?>/favicon/images/safari-pinned-tab.svg" color="<?php echo esc_attr( $color ); ?>">
-	<?php include (TEMPLATEPATH . '/favicon/favicon.php');
-	$whitelist = array(
-	    '127.0.0.1',
-	    '::1'
-	);
-	if(!in_array($_SERVER['REMOTE_ADDR'], $whitelist)){ ?>
-	    <link rel="manifest" href="<?php bloginfo('siteurl'); ?>/manifest.json">
-	<?php }
-	wp_head(); ?>
+	<?php wp_head(); ?>
 </head>
 <style>.adsbygoogle {text-align: center !important}</style>
 <body id="body" <?php body_class(); ?>>

@@ -143,6 +143,14 @@ if ( ! $post_id || is_wp_error( $post_id ) ) {
 $images = isset( $data['images'] ) && is_array( $data['images'] ) ? $data['images'] : array();
 $attach_ids = array();
 foreach ( $images as $i => $file_path ) {
+	if ( wp_http_validate_url( $file_path ) ) {
+		$tmp_copy = download_url( $file_path );
+		if ( is_wp_error( $tmp_copy ) ) {
+			fwrite( STDERR, 'Falha ao baixar imagem: ' . $tmp_copy->get_error_message() . "\n" );
+			continue;
+		}
+		$file_array = array( 'name' => sanitize_title( $data['title'] ) . '-' . ( $i + 1 ) . '.jpg', 'tmp_name' => $tmp_copy );
+	} else {
 	if ( ! file_exists( $file_path ) ) {
 		fwrite( STDERR, "Aviso: imagem não encontrada, pulando: {$file_path}\n" );
 		continue;
@@ -157,6 +165,7 @@ foreach ( $images as $i => $file_path ) {
 	$tmp_copy = wp_tempnam( $file_array['name'] );
 	copy( $file_path, $tmp_copy );
 	$file_array['tmp_name'] = $tmp_copy;
+	}
 
 	$attach_id = media_handle_sideload( $file_array, $post_id, $data['title'] );
 	if ( is_wp_error( $attach_id ) ) {
@@ -171,34 +180,37 @@ if ( empty( $attach_ids ) ) {
 	$missing_fields[] = 'images';
 } else {
 	set_post_thumbnail( $post_id, $attach_ids[0] );
-	update_field( 'image', $attach_ids[0], $post_id );
-	update_field( 'gallery', $attach_ids, $post_id );
+	grv_update_field( 'image', $attach_ids[0], $post_id );
+	grv_update_field( 'gallery', $attach_ids, $post_id );
 }
 
-update_field( 'url', $get( 'url' ), $post_id );
-update_field( 'brand', $get( 'brand' ), $post_id );
-update_field( 'color', $get( 'color' ), $post_id );
+grv_update_field( 'url', $get( 'url' ), $post_id );
+if ( ! empty( $data['affiliate_url'] ) ) {
+    grv_update_field( 'affiliate_url', esc_url_raw( $data['affiliate_url'], array( 'http', 'https' ) ), $post_id );
+}
+grv_update_field( 'brand', $get( 'brand' ), $post_id );
+grv_update_field( 'color', $get( 'color' ), $post_id );
 if ( ! empty( $data['rating'] ) ) {
-	update_field( 'rating', $data['rating'], $post_id );
+	grv_update_field( 'rating', $data['rating'], $post_id );
 } else {
 	$missing_fields[] = 'rating';
 }
 if ( ! empty( $data['review_count'] ) ) {
-	update_field( 'review_count', $data['review_count'], $post_id );
+	grv_update_field( 'review_count', $data['review_count'], $post_id );
 } else {
 	$missing_fields[] = 'review_count';
 }
 
 $bullets = isset( $data['bullets'] ) && is_array( $data['bullets'] ) ? $data['bullets'] : array();
 if ( $bullets ) {
-	update_field( 'bullets', implode( "\n", $bullets ), $post_id );
+	grv_update_field( 'bullets', implode( "\n", $bullets ), $post_id );
 } else {
 	$missing_fields[] = 'bullets';
 }
 
 $specs = isset( $data['specs'] ) && is_array( $data['specs'] ) ? $data['specs'] : array();
 if ( $specs ) {
-	update_field( 'specs', implode( "\n", $specs ), $post_id );
+	grv_update_field( 'specs', implode( "\n", $specs ), $post_id );
 } else {
 	$missing_fields[] = 'specs';
 }
@@ -206,7 +218,7 @@ if ( $specs ) {
 // Campos legados (só usados se o produto for um livro e vierem no manifesto).
 foreach ( array( 'author', 'company', 'pages', 'language', 'isbn', 'isbn_13', 'measurements', 'date_published' ) as $legacy_key ) {
 	if ( ! empty( $data[ $legacy_key ] ) ) {
-		update_field( $legacy_key, $data[ $legacy_key ], $post_id );
+		grv_update_field( $legacy_key, $data[ $legacy_key ], $post_id );
 	}
 }
 

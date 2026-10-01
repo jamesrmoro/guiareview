@@ -9,28 +9,28 @@ get_header();
 <?php while ( have_posts() ) : the_post();
 	$post_id = get_the_ID();
 
-	$url          = get_field( 'url' );
-	$image        = get_field( 'image' );
-	$gallery      = get_field( 'gallery' );
-	$price        = get_field( 'price' );
-	$old_price    = get_field( 'old_price' );
-	$brand        = get_field( 'brand' );
-	$color        = get_field( 'color' );
-	$rating       = get_field( 'rating' );
-	$review_count = get_field( 'review_count' );
-	$bullets      = grv_parse_lines( get_field( 'bullets' ) );
-	$specs        = grv_parse_lines( get_field( 'specs' ) );
+	$url          = grv_get_field( 'url' );
+	$image        = grv_get_field( 'image' );
+	$gallery      = grv_get_field( 'gallery' );
+	$price        = grv_get_field( 'price' );
+	$old_price    = grv_get_field( 'old_price' );
+	$brand        = grv_get_field( 'brand' );
+	$color        = grv_get_field( 'color' );
+	$rating       = grv_get_field( 'rating' );
+	$review_count = grv_get_field( 'review_count' );
+	$bullets      = grv_parse_lines( grv_get_field( 'bullets' ) );
+	$specs        = grv_parse_lines( grv_get_field( 'specs' ) );
 
 	// Campos legados (posts antigos, ex.: livros) — só aparecem se preenchidos.
 	$legacy = array(
-		'Autor'              => get_field( 'author' ),
-		'Editora'            => get_field( 'company' ),
-		'Páginas'            => get_field( 'pages' ),
-		'Idioma'             => get_field( 'language' ),
-		'ISBN'               => get_field( 'isbn' ),
-		'ISBN-13'            => get_field( 'isbn_13' ),
-		'Medidas'            => get_field( 'measurements' ),
-		'Data de publicação' => get_field( 'date_published' ),
+		'Autor'              => grv_get_field( 'author' ),
+		'Editora'            => grv_get_field( 'company' ),
+		'Páginas'            => grv_get_field( 'pages' ),
+		'Idioma'             => grv_get_field( 'language' ),
+		'ISBN'               => grv_get_field( 'isbn' ),
+		'ISBN-13'            => grv_get_field( 'isbn_13' ),
+		'Medidas'            => grv_get_field( 'measurements' ),
+		'Data de publicação' => grv_get_field( 'date_published' ),
 	);
 	$legacy = array_filter( $legacy, function ( $v ) { return $v !== '' && $v !== false && $v !== null; } );
 
@@ -43,9 +43,9 @@ get_header();
 			if ( is_array( $g ) && ! empty( $g['url'] ) ) {
 				$images[] = array( 'url' => $g['url'], 'alt' => $g['alt'] ?: get_the_title() );
 			} elseif ( is_numeric( $g ) ) {
-				$url = wp_get_attachment_image_url( (int) $g, 'large' );
-				if ( $url ) {
-					$images[] = array( 'url' => $url, 'alt' => get_the_title() );
+				$gallery_url = wp_get_attachment_image_url( (int) $g, 'large' );
+				if ( $gallery_url ) {
+					$images[] = array( 'url' => $gallery_url, 'alt' => get_post_meta( (int) $g, '_wp_attachment_image_alt', true ) ?: get_the_title() );
 				}
 			}
 		}
@@ -95,7 +95,7 @@ get_header();
 				<p class="grv-rating" aria-label="Avaliação: <?php echo esc_attr( number_format_i18n( $rating, 1 ) ); ?> de 5 estrelas<?php echo $review_count ? ', ' . esc_attr( $review_count ) . ' avaliações' : ''; ?>">
 					<span class="stars" aria-hidden="true"><?php echo str_repeat( '★', (int) round( $rating ) ) . str_repeat( '☆', 5 - (int) round( $rating ) ); ?></span>
 					<span><?php echo esc_html( number_format_i18n( $rating, 1 ) ); ?></span>
-					<?php if ( $review_count ) : ?><a href="#grvReviewsInfo"><?php echo esc_html( $review_count ); ?> avaliações</a><?php endif; ?>
+					<?php if ( $review_count ) : ?><?php if ( $url ) : ?><a href="<?php echo esc_url( $url ); ?>" <?php echo grv_offer_attributes( $post_id ); ?> target="_blank" rel="nofollow sponsored noopener noreferrer" aria-label="Ver avaliações de <?php echo esc_attr( get_the_title() ); ?> na loja"><?php echo esc_html( number_format_i18n( $review_count ) ); ?> avaliações</a><?php else : ?><span><?php echo esc_html( number_format_i18n( $review_count ) ); ?> avaliações</span><?php endif; ?><?php endif; ?>
 				</p>
 			<?php endif; ?>
 
@@ -130,11 +130,14 @@ get_header();
 			<p class="stock">Disponível</p>
 			<p class="muted">Preço e disponibilidade podem mudar no site do vendedor.</p>
 			<?php if ( $url ) : ?>
-				<a class="btn-buy" href="<?php echo esc_url( $url ); ?>" target="_blank" rel="nofollow sponsored noopener" title="Ver oferta">Ver oferta</a>
-				<a class="btn-buy-2" href="<?php echo esc_url( $url ); ?>" target="_blank" rel="nofollow sponsored noopener" title="Comprar">Comprar agora</a>
+				<a class="btn-buy" href="<?php echo esc_url( $url ); ?>" <?php echo grv_offer_attributes( $post_id ); ?> target="_blank" rel="nofollow sponsored noopener" title="Ver oferta">Ver oferta</a>
+				<a class="btn-buy-2" href="<?php echo esc_url( $url ); ?>" <?php echo grv_offer_attributes( $post_id ); ?> target="_blank" rel="nofollow sponsored noopener" title="Comprar">Comprar agora</a>
 			<?php endif; ?>
 		</aside>
 	</article>
+	<?php if ( $url ) : ?>
+	<div class="grv-mobile-buy"><a href="<?php echo esc_url( $url ); ?>" <?php echo grv_offer_attributes( $post_id ); ?> target="_blank" rel="nofollow sponsored noopener noreferrer">Comprar agora <span aria-hidden="true">↗</span></a></div>
+	<?php endif; ?>
 
 	<?php if ( $specs || $legacy ) : ?>
 	<section class="container grv-block grv-accordion" id="grvReviewsInfo">
@@ -142,11 +145,7 @@ get_header();
 		<?php if ( $specs ) : ?>
 			<details open>
 				<summary>Especificações técnicas</summary>
-				<table class="specs">
-					<?php foreach ( $specs as $s ) : ?>
-						<tr><th><?php echo esc_html( $s['label'] ?: '—' ); ?></th><td><?php echo esc_html( $s['text'] ); ?></td></tr>
-					<?php endforeach; ?>
-				</table>
+				<?php echo grv_product_specs_html( $specs ); ?>
 			</details>
 		<?php endif; ?>
 		<?php if ( $legacy ) : ?>
@@ -210,13 +209,7 @@ get_header();
 			'url'           => $url ?: get_permalink(),
 		);
 	}
-	if ( $rating && $review_count ) {
-		$schema['aggregateRating'] = array(
-			'@type'       => 'AggregateRating',
-			'ratingValue' => (string) $rating,
-			'reviewCount' => (string) $review_count,
-		);
-	}
+	// Store ratings are displayed with their source link, not as reviews collected here.
 	?>
 	<script type="application/ld+json"><?php echo wp_json_encode( $schema, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES ); ?></script>
 

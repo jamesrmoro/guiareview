@@ -5,7 +5,7 @@
  * @since 0.0.1
  */
 get_header("report");
-// update_field('report_log', json_encode([]), 'option');
+// grv_update_field('report_log', json_encode([]), 'option');
 ?>
 <style>
   body {
@@ -169,7 +169,7 @@ get_header("report");
 <h1>Relatório de Cliques</h1>
 
 <?php
-$json = get_field('report_log', 'option');
+$json = grv_get_field('report_log', 'option');
 $registros = json_decode($json, true);
 
 $contagem = [

@@ -1,0 +1,56 @@
+(function(f) {
+  var haveAUI = typeof P !== 'undefined' && P.AUI_BUILD_DATE;
+  if (typeof SiegeCrypto !== 'undefined') {
+    if (haveAUI) {
+      P.now('siege-cse').register('siege-cse:profile:DcodeGifting', function(lib) {
+        return f(lib || SiegeCrypto);
+      });
+    } else {
+      f(SiegeCrypto);
+    }
+  } else if (haveAUI) {
+    P.when('siege-cse').register('siege-cse:profile:DcodeGifting', f);
+  } else {
+    var err = new Error('CSE library not loaded, and no AUI');
+    try {
+      ueLogError(err, {attribution: 'siege-cse:profile:DcodeGifting', logLevel: 'WARN'});
+    } catch (e) {
+      throw err;
+    }
+  }
+})(function(SiegeCrypto) {
+
+SiegeCrypto.addProfile("DcodeGifting", {
+  "giftingData": {dataType: "FG-DcodeGifting-DcodeGiftingDataType-us-east-1", requiresTail: false},
+  "message": {dataType: "FG-DcodeGifting-DcodeGiftingDataType-us-east-1", requiresTail: false},
+  "recipient": {dataType: "FG-DcodeGifting-DcodeGiftingDataType-us-east-1", requiresTail: false},
+  "senderName": {dataType: "FG-DcodeGifting-DcodeGiftingDataType-us-east-1", requiresTail: false},
+});
+
+var createDeferred = SiegeCrypto.createDeferred || (function() {
+  return {
+    resolve: function() {},
+    reject: function(e) {
+      console.error(e);
+    }
+  };
+});
+
+function addMissingDataType(id) {
+  var deferred = createDeferred();
+  if (SiegeCrypto.addLoadingDataType) {
+    SiegeCrypto.addLoadingDataType(id, deferred.promise);
+  }
+  deferred.reject(new Error('Datatype ' + id + ' is not supported in CSE'));
+}
+
+SiegeCrypto.addDataType({
+	"dataTypeId": "FG-DcodeGifting-DcodeGiftingDataType-us-east-1",
+	"jwkPublicKey": {"kty":"RSA","e":"AQAB","n":"1XkKKYKpol6MNDBqkCVOnL--mkCUzk9HywMDDamA7RDA2lWpteStOk7s62kUi95885BMvY005ioUStjubxz0iFV-PmJ7U-inC-0F33krKadWy0INxtPmF1umsNoWH3jKXRv6ka89FJqVvON58uUkuup9TOyhTslXMCjYNM4lXSdVBn4RO3h-4go76lqPVB7qOwY8OYSZl2b03pm8TmSQ8MfRXi7z2dlQQYs4-RuDVyceb_z8N7qwg0YSZRy_cqpSsFjys7vcloXQigGCVeGCgVXby5bcwGx-uJ3KJ8vd8imXhYkIGMm-FcRzbnsWcuxmHlB-ih-21HSGsyRZxBuU1Q"},
+	"providerId": "si:md5",
+	"keyId": "bfb03e82e72a9f256bf6003138cdbd30"
+});
+
+return SiegeCrypto;
+
+});

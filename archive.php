@@ -17,7 +17,8 @@ $trail = array( array( 'label' => $title, 'url' => null ) );
 	<header class="container grv-cat-header">
 		<h1><?php echo esc_html( $title ); ?></h1>
 		<?php if ( is_tag() ) : ?>
-			<p class="desc">Produtos relacionados a "<?php echo esc_html( $title ); ?>".</p>
+			<?php $term = get_queried_object(); ?>
+			<p class="desc"><?php echo esc_html( $term && $term->description ? $term->description : 'Produtos relacionados a "' . $title . '".' ); ?></p>
 		<?php endif; ?>
 	</header>
 

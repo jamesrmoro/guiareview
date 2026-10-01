@@ -35,8 +35,8 @@ $exclude_id = $blog_category ? $blog_category->term_id : 0;
 
                         if ($categories) {
                             foreach ($categories as $category) {
-                                $category_image = get_field('image', 'category_' . $category->term_id);
-                                $category_flag = get_field('flag', 'category_' . $category->term_id);
+                                $category_image = grv_get_field('image', 'category_' . $category->term_id);
+                                $category_flag = grv_get_field('flag', 'category_' . $category->term_id);
                                 ?>
                                 <div class="card">
                                     <a class="link-image" title="Como ter boas ideias para contar histórias" href="<?php echo esc_url(get_term_link($category)); ?>">

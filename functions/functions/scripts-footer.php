@@ -19,7 +19,7 @@ function sprintcodes_enqueue_scripts_input(){
 
 	// Redesenho: home, categorias, tags e produtos usam a nova folha única,
 	// mais leve, no lugar de single.css/index.css/swiper (não usados mais).
-	wp_enqueue_style( 'guiareview-wp', get_template_directory_uri() . "/css/guiareview.css", array(), sprintcodes_VERSION );
+	wp_enqueue_style( 'guiareview-wp', get_template_directory_uri() . "/css/guiareview.css", array( 'style-wp' ), filemtime( get_template_directory() . '/css/guiareview.css' ) );
 
 	$translation_array = array(
      	'siteURL' => get_site_url(),
@@ -29,22 +29,3 @@ function sprintcodes_enqueue_scripts_input(){
   	wp_localize_script( 'jquery-3.6.0.min', 'sprintcodesData', $translation_array );
 }
 
-add_action('wp_footer', 'sprintcodes_activate_scripts');
-
-function sprintcodes_activate_scripts(){ ?>
-
-	<script type="text/javascript">
-		$(document).ready(function() {
-			$('body').on('click', '.cookie-notice .accept', function(){
-	            localStorage.setItem("cookie-guiareview", 'aceito');
-	            $(".cookie-notice").fadeOut();
-	        });
-
-	        var status_cookie = localStorage.getItem('cookie-guiareview');
-	        if (localStorage.getItem("cookie-guiareview") == null) {
-	            $(".cookie-notice").css("display", "block");
-	        }
-	    });
-	</script>
-
-<?php }

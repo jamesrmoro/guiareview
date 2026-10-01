@@ -82,21 +82,21 @@ wp_update_attachment_metadata( $attach_id, $attach_data );
 set_post_thumbnail( $post_id, $attach_id );
 
 //Update fields ACF
-update_field("url", $url, $post_id);
-update_field("pages", $pages, $post_id);
-update_field("language", $language, $post_id);
-update_field("company", $company, $post_id);
-update_field("date_published", $date_published, $post_id);
-update_field("file_size", $file_size, $post_id);
-update_field("page_flip", $page_flip, $post_id);
-update_field("vocabulary_tips", $vocabulary_tips, $post_id);
-update_field("font_configuration", $font_configuration, $post_id);
-update_field("vocabulary_tips", $vocabulary_tips, $post_id);
-update_field("isbn", $isbn, $post_id);
-update_field("isbn_13", $isbn_13, $post_id);
-update_field("measurements", $measurements, $post_id);
-update_field("image", $attach_id, $post_id);
-update_field("author", $author, $post_id);
+grv_update_field("url", $url, $post_id);
+grv_update_field("pages", $pages, $post_id);
+grv_update_field("language", $language, $post_id);
+grv_update_field("company", $company, $post_id);
+grv_update_field("date_published", $date_published, $post_id);
+grv_update_field("file_size", $file_size, $post_id);
+grv_update_field("page_flip", $page_flip, $post_id);
+grv_update_field("vocabulary_tips", $vocabulary_tips, $post_id);
+grv_update_field("font_configuration", $font_configuration, $post_id);
+grv_update_field("vocabulary_tips", $vocabulary_tips, $post_id);
+grv_update_field("isbn", $isbn, $post_id);
+grv_update_field("isbn_13", $isbn_13, $post_id);
+grv_update_field("measurements", $measurements, $post_id);
+grv_update_field("image", $attach_id, $post_id);
+grv_update_field("author", $author, $post_id);
 
 $dataPost = [];
 $dataPost['sucesso'] = true;

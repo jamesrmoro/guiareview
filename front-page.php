@@ -7,7 +7,8 @@
  */
 get_header();
 
-$top_cats = get_categories( array( 'parent' => 0, 'hide_empty' => false, 'orderby' => 'name' ) );
+$top_cats = get_categories( array( 'parent' => 0, 'hide_empty' => false, 'orderby' => 'name', 'pad_counts' => true ) );
+$category_counts = grv_category_product_counts();
 ?>
 <main>
 	<section class="grv-hero">
@@ -24,13 +25,13 @@ $top_cats = get_categories( array( 'parent' => 0, 'hide_empty' => false, 'orderb
 		</div>
 		<div class="grv-cat-grid">
 			<?php foreach ( $top_cats as $cat ) :
-				$cat_image = get_field( 'image', 'category_' . $cat->term_id );
+				$cat_image = grv_get_field( 'image', 'category_' . $cat->term_id );
 				?>
 				<a class="grv-cat-tile" href="<?php echo esc_url( get_category_link( $cat->term_id ) ); ?>">
 					<?php if ( $cat_image ) : ?>
-						<img src="<?php echo esc_url( $cat_image ); ?>" alt="<?php echo esc_attr( $cat->name ); ?>" loading="lazy">
+						<img src="<?php echo esc_url( $cat_image ); ?>" alt="<?php echo esc_attr( $cat->name ); ?>" loading="lazy" width="640" height="480">
 					<?php endif; ?>
-					<span><?php echo esc_html( $cat->name ); ?> <span class="muted" style="color:#c7c9e0;font-weight:400">(<?php echo (int) $cat->count; ?>)</span></span>
+					<span><?php echo esc_html( $cat->name ); ?> <span class="muted">(<?php echo (int) ( $category_counts[$cat->term_id] ?? 0 ); ?>)</span></span>
 				</a>
 			<?php endforeach; ?>
 		</div>

@@ -12,6 +12,8 @@ searchreplacedb2.php
 Search-Replace-DB-master/
 .sass-cache/
 node_modules/
+deploy-content.zip
+deploy-content.zip.tmp
 gulpfile.js
 Projeto/PSD/
 Projeto/
@@ -24,3 +26,4 @@ amazon-api/amazon-request.php
 amazon-api/amazon-request.php
 amazon-api/vendor/
 amazon-api/request-apis.php
+produtos-inserir/processados/*/*_files/

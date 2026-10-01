@@ -5,6 +5,23 @@ description: Cadastra produtos no site WordPress real "Guia Review" (projetos/gu
 
 # Cadastrar produto — Guia Review
 
+## Campos nativos e links de afiliado (fluxo atual)
+
+O site usa metadados nativos e metaboxes do tema; não utiliza mais ACF.
+Cadastre o link original em `url` e o link de afiliado em `affiliate_url`.
+Sempre leia `produtos-inserir/link-produtos.txt` e associe `Produto N` ao HTML
+de mesmo número. O campo de afiliado tem prioridade nos botões e avaliações.
+O tema mantém a URL real de afiliado nos links e conta os cliques em segundo
+plano; mantenha no manifesto a URL real, nunca uma URL interna de rastreamento.
+O painel permite copiar esse link e ordenar pelos cliques. Não invente
+contagens nem altere dados reais de cliques durante o cadastro.
+
+Neste ambiente, use PHP `C:\wamp64\bin\php\php8.2.29\php.exe` e o wrapper
+`seed/import-one-product.php N` para importar o manifesto. Esse wrapper lê
+os links de afiliado do arquivo automaticamente. As referências a ACF e
+WP CLI abaixo documentam o fluxo anterior; os campos atuais são salvos por
+`grv_update_field`, diretamente nos metadados do WordPress.
+
 Fluxo para transformar o conteúdo que o usuário solto em `produtos-inserir/` em um
 post real, publicado, categorizado e pronto para o Google indexar, no site
 WordPress real (não um protótipo) em `C:\wamp64\www\projetos\guiareview`.

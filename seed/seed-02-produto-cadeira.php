@@ -80,19 +80,19 @@ if ( empty( $attach_ids ) ) {
 	echo "Nenhuma imagem foi anexada. Post {$post_id} criado sem imagens.\n";
 } else {
 	set_post_thumbnail( $post_id, $attach_ids[0] );
-	update_field( 'image', $attach_ids[0], $post_id );
-	update_field( 'gallery', $attach_ids, $post_id );
+	grv_update_field( 'image', $attach_ids[0], $post_id );
+	grv_update_field( 'gallery', $attach_ids, $post_id );
 }
 
-update_field( 'url', 'https://www.amazon.com.br/dp/B0DQVLF642', $post_id );
-update_field( 'brand', 'LUVINco', $post_id );
-update_field( 'color', 'Preto', $post_id );
-update_field( 'rating', 4.5, $post_id );
-update_field( 'review_count', 465, $post_id );
+grv_update_field( 'url', 'https://www.amazon.com.br/dp/B0DQVLF642', $post_id );
+grv_update_field( 'brand', 'LUVINco', $post_id );
+grv_update_field( 'color', 'Preto', $post_id );
+grv_update_field( 'rating', 4.5, $post_id );
+grv_update_field( 'review_count', 465, $post_id );
 // Preço não é cadastrado: o card/buybox mostram só "Ver oferta" (preço muda
 // com frequência e não deve ser fixado no conteúdo).
 
-update_field( 'bullets', implode( "\n", array(
+grv_update_field( 'bullets', implode( "\n", array(
 	'Design ergonômico: confortável e durável, ideal para longas horas de uso.',
 	'Estofamento em malha: material respirável que evita o superaquecimento.',
 	'Ajuste de altura: assento ajustável de 50 cm a 57 cm de altura desde o chão.',
@@ -105,7 +105,7 @@ update_field( 'bullets', implode( "\n", array(
 	'Enchimento em espuma: garantia de conforto com alta densidade.',
 ) ), $post_id );
 
-update_field( 'specs', implode( "\n", array(
+grv_update_field( 'specs', implode( "\n", array(
 	'Marca: LUVINco',
 	'Cor: Preto',
 	'Material: Malha',
