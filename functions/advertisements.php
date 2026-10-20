@@ -135,7 +135,12 @@ add_filter('posts_clauses',function($clauses,$query){
     $clauses['join'].=$wpdb->prepare(" LEFT JOIN {$wpdb->options} grv_ad_totals ON grv_ad_totals.option_name=CONCAT(%s,{$wpdb->posts}.ID) ",$prefix);
     $clauses['orderby']="CAST(COALESCE(grv_ad_totals.option_value,'0') AS UNSIGNED) $direction, {$wpdb->posts}.ID DESC";return $clauses;
 },10,2);
-add_action('admin_enqueue_scripts',function(){if(get_current_screen()?->post_type==='grv_ad'){wp_add_inline_style('common','.column-grv_ad_image{width:92px}.column-grv_ad_image img{display:block}.grv-ad-fields{display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:800px}.grv-ad-fields label span{display:block;margin-bottom:6px;font-weight:600}.grv-ad-fields input,.grv-ad-fields select{width:100%;min-height:38px}@media(max-width:700px){.grv-ad-fields{grid-template-columns:1fr}}');}});
+add_action('admin_enqueue_scripts',function(){
+    $screen=get_current_screen();
+    if($screen && $screen->post_type==='grv_ad'){
+        wp_add_inline_style('common','.column-grv_ad_image{width:92px}.column-grv_ad_image img{display:block}.grv-ad-fields{display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:800px}.grv-ad-fields label span{display:block;margin-bottom:6px;font-weight:600}.grv-ad-fields input,.grv-ad-fields select{width:100%;min-height:38px}@media(max-width:700px){.grv-ad-fields{grid-template-columns:1fr}}');
+    }
+});
 add_action('add_meta_boxes_grv_ad',function(){remove_meta_box('wpseo_meta','grv_ad','normal');remove_meta_box('slugdiv','grv_ad','normal');},100);
 add_action('before_delete_post',function($id,$post){if($post->post_type==='grv_ad'){delete_option('grv_ad_views_'.$id);delete_option('grv_ad_clicks_'.$id);}},10,2);
 add_action('wp_enqueue_scripts',function(){

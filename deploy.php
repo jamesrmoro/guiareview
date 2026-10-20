@@ -5,14 +5,14 @@ if(realpath(getcwd())!==realpath(__DIR__)){fwrite(STDERR,"Execute este arquivo n
 try{
     if(!class_exists('ZipArchive')){throw new RuntimeException('A extensão PHP zip é necessária.');}
     $command=$argv[1]??'';$dry=in_array('--dry-run',$argv,true);$package=__DIR__.'/deploy-content.zip';
-    foreach($argv as $argument){if(str_starts_with($argument,'--file=')){$package=substr($argument,7);}}
+    foreach($argv as $argument){if(strpos($argument,'--file=')===0){$package=substr($argument,7);}}
     if(!in_array($command,['export','apply'],true)){echo "Uso: php deploy.php export\n     php deploy.php apply --dry-run\n     php deploy.php apply\nOpcional: --file=/caminho/pacote.zip\n";exit;}
     require dirname(__DIR__,3).'/wp-load.php';
     if(!function_exists('grv_product_fields')||!post_type_exists('grv_ad')||!defined('WPSEO_VERSION')){throw new RuntimeException('Ative o tema Guia Review atualizado e o Yoast SEO antes de executar.');}
     $admins=get_users(['role'=>'administrator','number'=>1,'fields'=>'ID']);if(!$admins){throw new RuntimeException('Administrador não encontrado.');}wp_set_current_user((int)$admins[0]);
     require_once ABSPATH.'wp-admin/includes/image.php';require_once ABSPATH.'wp-admin/includes/file.php';require_once ABSPATH.'wp-admin/includes/media.php';
     global $wpdb;
-    $allowed_meta=function($key){return isset(grv_product_fields()[$key])||in_array($key,['_thumbnail_id','grv_product_number'],true)||str_starts_with($key,'_yoast_wpseo_')||str_starts_with($key,'_grv_ad_');};
+    $allowed_meta=function($key){return isset(grv_product_fields()[$key])||in_array($key,['_thumbnail_id','grv_product_number'],true)||strpos($key,'_yoast_wpseo_')===0||strpos($key,'_grv_ad_')===0;};
     if($command==='export'){
         $manifest=['version'=>1,'source_home'=>untrailingslashit(home_url()),'created'=>gmdate('c'),'posts'=>[],'terms'=>[],'media'=>[]];$media=[];
         $include_media=function($value)use(&$media){if(is_numeric($value)&&(int)$value>0){$media[(int)$value]=true;}};
@@ -59,7 +59,7 @@ try{
         }
         $by_slug=get_page_by_path($item['slug'],OBJECT,$item['type']);
         if($match&&$by_slug&&$by_slug->ID!==$match){throw new RuntimeException('Conflito entre número e slug: '.$item['slug']);}
-        return $match?:($by_slug?->ID??0);
+        return $match?:($by_slug ? $by_slug->ID : 0);
     };
     $plan=['create'=>0,'update'=>0,'images'=>count($manifest['media']),'terms'=>count($manifest['terms']),'source'=>$source_home,'target'=>$target_home];
     foreach($manifest['posts'] as $item){
@@ -88,7 +88,7 @@ try{
     $backup_bytes=0;$write=function($sql)use($stream,&$backup_bytes){if(gzwrite($stream,$sql)!==strlen($sql)){throw new RuntimeException('Backup incompleto.');}$backup_bytes+=strlen($sql);};
     $write("SET NAMES utf8mb4;\nSET FOREIGN_KEY_CHECKS=0;\n");
     foreach($wpdb->get_col('SHOW TABLES') as $table){
-        if(!str_starts_with($table,$wpdb->prefix)){continue;}if(!preg_match('/^[A-Za-z0-9_]+$/',$table)){throw new RuntimeException('Nome de tabela inválido.');}
+        if(strpos($table,$wpdb->prefix)!==0){continue;}if(!preg_match('/^[A-Za-z0-9_]+$/',$table)){throw new RuntimeException('Nome de tabela inválido.');}
         $schema=$wpdb->get_row('SHOW CREATE TABLE `'.$table.'`',ARRAY_N);if(!$schema||!isset($schema[1])){throw new RuntimeException('Falha ao copiar estrutura da tabela.');}$write('DROP TABLE IF EXISTS `'.$table.'`;'."\n".$schema[1].";\n");
         for($offset=0;;$offset+=100){$rows=$wpdb->get_results('SELECT * FROM `'.$table.'` LIMIT '.$offset.',100',ARRAY_A);if($wpdb->last_error){throw new RuntimeException('Falha no backup: '.$wpdb->last_error);}if(!$rows){break;}
             foreach($rows as $row){$write('INSERT INTO `'.$table.'` ('.implode(',',array_map(fn($key)=>'`'.$key.'`',array_keys($row))).') VALUES ('.implode(',',array_map(fn($value)=>$value===null?'NULL':"X'".bin2hex((string)$value)."'",array_values($row))).");\n");}
