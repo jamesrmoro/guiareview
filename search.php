@@ -1,87 +1,38 @@
-<?php get_header(); ?>
+<?php
+get_header();
+global $wp_query;
+$search_term = get_search_query();
+$total = (int) $wp_query->found_posts;
+?>
 <main>
-  <article>
-    <section class="container-page">
-      <div class="center">
-        <div class="group-logo">
-          <div></div>
-          <div>
-            <a href="<?php bloginfo('siteurl'); ?>" title="Guia Review"><img class="logo" width="200px" height="35px" src="<?php bloginfo('template_url'); ?>/src/images/logo-guia-review.png" alt="Logo Guia Review"></a>
-            <h1 class="title-hide">Resultados da busca</h1>
-          </div>
-          <div>
-            <button id="openSearchBtn" aria-label="Abrir busca">
-              <img src="<?php bloginfo('template_url'); ?>/src/images/icon-search.svg" alt="Buscar">
-            </button>
-          </div>
-        </div>
-
-        <div class="cards">
-          <?php
-          $posts_array = [];
-          $search_term = get_search_query();
-
-          // Captura os posts
-          if (have_posts()) {
-            while (have_posts()) {
-              the_post();
-              $posts_array[] = $post;
-            }
-          }
-
-          $total_resultados = count($posts_array);
-
-          // Envia email se nenhum resultado
-          if ($total_resultados === 0 && !empty($search_term)) {
-            $to = 'jamesrmoro@gmail.com';
-            $subject = 'Busca sem resultado | ' . sanitize_text_field($search_term);
-            $message = "Nenhum resultado encontrado para o termo de busca: \"" . sanitize_text_field($search_term) . "\"\n\n";
-            $message .= "URL da busca: " . esc_url(home_url('/?s=' . urlencode($search_term))) . "\n";
-            $headers = ['Content-Type: text/plain; charset=UTF-8'];
-
-            wp_mail($to, $subject, $message, $headers);
-          }
-          ?>
-
-          <h2 class="title-result">Resultados para: <strong><?php echo esc_html($search_term); ?></strong></h2>
-
-          <div class="wrapper">
-            <?php if ($total_resultados > 0): ?>
-              <?php foreach ($posts_array as $post): setup_postdata($post); ?>
-                <div class="card">
-                  <a class="link-image" href="<?php the_permalink(); ?>" title="<?php the_title_attribute(); ?>">
-                    <?php if (has_post_thumbnail()) : ?>
-                      <?php the_post_thumbnail('medium', ['width' => '320', 'height' => '213']); ?>
-                    <?php else : ?>
-                      <img src="<?php bloginfo('template_url'); ?>/src/images/thumb-placeholder.jpg" width="320" height="213" alt="<?php the_title_attribute(); ?>">
-                    <?php endif; ?>
-                  </a>
-                  <div class="text">
-                    <a class="group" href="<?php the_permalink(); ?>" title="<?php the_title_attribute(); ?>">
-                      <h2 class="title"><?php the_title(); ?></h2>
-                      <span class="link">Ver mais</span>
-                    </a>
-                  </div>
-                </div>
-              <?php endforeach; wp_reset_postdata(); ?>
-            <?php else : ?>
-              <p style="width: 100%;text-align: center;color:#fff">Nenhum resultado encontrado para "<strong><?php echo esc_html($search_term); ?></strong>".</p>
-            <?php endif; ?>
-          </div>
-
-          <div class="line-pagination">
-            <div class="pagination">
-              <?php
-              echo paginate_links(array(
-                'total' => $wp_query->max_num_pages,
-                'current' => max(1, get_query_var('paged')),
-              ));
-              ?>
-            </div>
-          </div>
-        </div>
+  <?php grv_breadcrumbs( array( array( 'label' => 'Resultados da busca', 'url' => null ) ) ); ?>
+  <section class="container grv-search-results">
+    <header class="grv-results-head">
+      <p class="grv-eyebrow">Encontre seu próximo produto</p>
+      <h1>Resultados para “<?php echo esc_html( $search_term ); ?>”</h1>
+      <p class="muted"><?php echo esc_html( sprintf( _n( '%s produto encontrado', '%s produtos encontrados', $total ), number_format_i18n( $total ) ) ); ?></p>
+      <form class="grv-form-search grv-results-search" action="<?php echo esc_url( home_url( '/' ) ); ?>" method="get" role="search">
+        <label class="sr-only" for="grv-results-query">Buscar produtos</label>
+        <input id="grv-results-query" type="search" name="s" value="<?php echo esc_attr( $search_term ); ?>" placeholder="Digite uma marca ou produto" required>
+        <input type="hidden" name="post_type" value="post">
+        <button type="submit">Buscar</button>
+      </form>
+    </header>
+    <?php if ( have_posts() ) : ?>
+      <div class="grv-grid">
+        <?php while ( have_posts() ) : the_post(); grv_product_card( get_the_ID() ); endwhile; ?>
       </div>
-    </section>
-  </article>
+      <nav class="pagination" aria-label="Páginas de resultados">
+        <?php echo paginate_links( array( 'total' => $wp_query->max_num_pages, 'current' => max( 1, get_query_var( 'paged' ) ), 'type' => 'list', 'prev_text' => 'Anterior', 'next_text' => 'Próxima' ) ); ?>
+      </nav>
+    <?php else : ?>
+      <div class="grv-search-empty">
+        <span class="grv-empty-icon" aria-hidden="true">⌕</span>
+        <h2>Nenhum produto encontrado</h2>
+        <p>Tente usar menos palavras, confira a escrita ou procure pelo nome da marca.</p>
+        <a class="btn-buy" href="<?php echo esc_url( home_url( '/' ) ); ?>">Explorar categorias</a>
+      </div>
+    <?php endif; ?>
+  </section>
 </main>
 <?php get_footer(); ?>

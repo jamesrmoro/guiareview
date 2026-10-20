@@ -1,0 +1,33 @@
+/* Native WordPress login: vector artwork, no extra scripts or external fonts. */
+body.login{background:#131921;color:#131921;min-height:100vh;isolation:isolate}
+.grv-login-background{position:fixed;inset:0;overflow:hidden;z-index:0;pointer-events:none;background:radial-gradient(ellipse at 88% 12%,rgba(63,104,113,.28),transparent 52%),radial-gradient(ellipse at 7% 90%,rgba(63,104,113,.2),transparent 42%),linear-gradient(135deg,#131921,#192733)}
+.grv-login-background>svg{display:block;width:100%;height:100%}
+.grv-login-orbit{transform-box:view-box;transform-origin:1190px 180px;animation:grv-login-drift 42s ease-in-out infinite alternate}
+.grv-login-orbit-secondary{transform-origin:130px 800px;animation-duration:50s;animation-direction:alternate-reverse}
+.login #login{position:relative;z-index:1;width:360px;max-width:calc(100% - 32px);padding:clamp(40px,10vh,90px) 0 32px}
+.login h1{margin:0;padding:0;text-align:center}
+.login h1 a{background-image:url('../src/images/logo-guia-review.png');background-repeat:no-repeat;background-position:center;background-size:210px auto;width:100%;height:44px;margin:0 auto 24px;padding:0}
+.login form{margin-top:0;padding:28px;border:1px solid rgba(255,255,255,.3);border-radius:12px;background:#fff;box-shadow:0 16px 48px rgba(0,0,0,.2)}
+.login label{font-size:14px;color:#263844}
+.login input[type=text],.login input[type=password]{border-color:#a9b8be;border-radius:6px}
+.login input[type=text]:focus,.login input[type=password]:focus,.login input[type=checkbox]:focus{border-color:#3f6871;box-shadow:0 0 0 1px #3f6871;outline:none}
+.login input[type=checkbox]:checked::before{color:#3f6871}
+.login .button-primary{min-height:40px;padding:0 20px;border:1px solid #3f6871;border-radius:6px;background:#3f6871;color:#fff;font-weight:700;text-shadow:none;box-shadow:none;transition:background-color .18s ease,border-color .18s ease}
+.login .button-primary:hover,.login .button-primary:active{background:#31525a;border-color:#31525a;color:#fff}
+.login .button-primary:focus{background:#31525a;border-color:#31525a;color:#fff;box-shadow:0 0 0 2px #fff,0 0 0 4px #3f6871}
+.login .button.wp-hide-pw{color:#3f6871}
+.login .message{border-left-color:#3f6871;border-radius:6px;margin-bottom:16px}
+.login #nav,.login #backtoblog{padding:0 12px;text-align:center}
+.login #nav a,.login #backtoblog a,.login .privacy-policy-page-link a{color:#fff;text-shadow:none;text-decoration:none}
+.login #nav a:hover,.login #backtoblog a:hover,.login .privacy-policy-page-link a:hover{color:#fff;text-decoration:underline;text-underline-offset:4px}
+.login #nav a:focus-visible,.login #backtoblog a:focus-visible,.login .privacy-policy-page-link a:focus-visible{outline:2px solid #fff;outline-offset:4px;box-shadow:none;color:#fff}
+.login .privacy-policy-page-link{margin:24px 0 0}
+.login .language-switcher{position:relative;z-index:1;margin:0 auto 24px}
+.login .language-switcher label{color:#fff}
+.login .language-switcher .dashicons{color:#fff}
+.login .language-switcher .button{border-color:#829fa7;border-radius:6px;background:rgba(255,255,255,.08);color:#fff}
+.login .language-switcher .button:hover{background:rgba(255,255,255,.16);color:#fff}
+.login .language-switcher .button:focus{box-shadow:0 0 0 2px #fff}
+@keyframes grv-login-drift{from{transform:translateY(-6px) rotate(-5deg)}to{transform:translateY(8px) rotate(7deg)}}
+@media(max-width:480px){.login #login{padding-top:40px}.login form{padding:24px}.grv-login-orbit-secondary{animation:none}}
+@media(prefers-reduced-motion:reduce){.grv-login-orbit{animation:none}.login .button-primary{transition:none}}

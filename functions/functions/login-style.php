@@ -1,72 +1,48 @@
 <?php
-function login_enqueue_scripts(){ ?>
-    <div class="background-cover"></div>
-        <style type="text/css" media="screen">
-            body.login{
-                background: #fff;
-            }
-            .background-cover{
-                background-size: cover !important;
-                position:fixed;
-                top:0;
-                left:0;
-                z-index:10;
-                overflow: hidden;
-                width: 100%;
-                height:100%;
-                opacity: 0.9;
-            }
-            #login{
-                z-index:9999;
-                position:relative;
-                padding-top: 45px !important;
-            }
-            .login h1 {
-                text-align: center;
-                margin: 0;
-                padding: 0;
-            }
-            .login form {
-                margin-top: 0 !important;
-                background-color: #e8e7e7 !important;
-            }
-            .login .message {
-                margin-bottom: 0 !important;
-            }
-            .login h1 a {
-                background: url('<?php echo get_bloginfo('template_directory') ?>/src/images/logo-os-10-melhores-livros.svg') no-repeat center top !important;
-                margin-bottom: 20px !important;
-                padding-bottom: 0px;
-                background-size: 210px !important;
-                width: 325px !important;
-                height: 60px !important;
-                display: block;
-            }
-            input.button-primary, button.button-primary, .button-primary{
-                border-radius: 3px !important;
-                border:none !important;
-                background-color: #081032 !important;
-                font-weight:normal !important;
-                text-shadow:none !important;
-                }
-                .button:active, .submit input:active, .button-secondary:active {
-                    background: #85ceb3 !important;
-                    text-shadow: none !important;
-                }
-                .login #nav a, .login #backtoblog a {
-                    color: #081032 !important;
-                    text-shadow: none !important;
-                }
-                .login #nav a:hover, .login #backtoblog a:hover{
-                    color: #081032 !important;
-                    text-shadow: none !important;
-                }
-                .login #nav, .login #backtoblog{
-                    text-shadow: none !important;
-                }
-                .login form {
+/** Lightweight branding for the native WordPress sign-in screen. */
+defined( 'ABSPATH' ) || exit;
 
-                    box-shadow: 0 1px 3px rgba(0,0,0,.13) !important;
-                }
-            </style>
-    <?php } add_action( 'login_enqueue_scripts', 'login_enqueue_scripts' );
+add_action( 'login_enqueue_scripts', function () {
+    wp_enqueue_style( 'grv-login', get_template_directory_uri() . '/css/login.css', array( 'login' ), filemtime( get_template_directory() . '/css/login.css' ) );
+} );
+
+add_action( 'login_header', function () {
+    ?>
+    <div class="grv-login-background" aria-hidden="true">
+        <svg viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" fill="none" focusable="false">
+            <defs>
+                <pattern id="grvLoginGrid" width="72" height="72" patternUnits="userSpaceOnUse"><path d="M72 0H0V72" stroke="#8bb5be" stroke-opacity=".055"/></pattern>
+                <linearGradient id="grvLoginLines" x1="40" y1="840" x2="1380" y2="60" gradientUnits="userSpaceOnUse"><stop stop-color="#78b5bc" stop-opacity=".2"/><stop offset=".5" stop-color="#78b5bc" stop-opacity=".025"/><stop offset="1" stop-color="#78b5bc" stop-opacity=".22"/></linearGradient>
+            </defs>
+            <path fill="url(#grvLoginGrid)" d="M0 0h1440v900H0z"/>
+            <g stroke="url(#grvLoginLines)" stroke-width="1.2">
+                <path d="M-180 740C90 340 270 1040 690 650S1220 100 1600 280"/>
+                <path d="M-180 780C90 380 270 1080 690 690S1220 140 1600 320"/>
+                <path d="M-180 820C90 420 270 1120 690 730S1220 180 1600 360"/>
+            </g>
+            <g class="grv-login-orbit" stroke="#82b4bd" stroke-opacity=".12">
+                <circle cx="1190" cy="180" r="155"/>
+                <circle cx="1190" cy="180" r="235"/>
+                <path d="M1190-135a315 315 0 1 1-315 315"/>
+                <circle cx="1350" cy="8" r="5" fill="#82b4bd" fill-opacity=".65" stroke="none"/>
+                <circle cx="1056" cy="258" r="4" fill="#f43b4a" fill-opacity=".7" stroke="none"/>
+            </g>
+            <g class="grv-login-orbit grv-login-orbit-secondary" stroke="#82b4bd" stroke-opacity=".1">
+                <circle cx="130" cy="800" r="150"/>
+                <circle cx="130" cy="800" r="250"/>
+                <circle cx="276" cy="765" r="4" fill="#82b4bd" fill-opacity=".65" stroke="none"/>
+            </g>
+        </svg>
+    </div>
+    <?php
+} );
+
+function grv_login_logo_url() {
+    return home_url( '/' );
+}
+add_filter( 'login_headerurl', 'grv_login_logo_url' );
+
+function grv_login_logo_title() {
+    return get_bloginfo( 'name' );
+}
+add_filter( 'login_headertext', 'grv_login_logo_title' );

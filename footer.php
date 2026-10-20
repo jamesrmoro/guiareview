@@ -7,210 +7,76 @@
  */
 ?>
 
-        <div class="search-modal-bg" id="searchModalBg" tabindex="-1" aria-hidden="true">
-          <div class="search-modal-box" role="dialog" aria-modal="true" aria-labelledby="searchModalTitle">
-            <button class="search-modal-close" id="closeSearchBtn" aria-label="Fechar busca">
-              <!-- Ícone X SVG -->
-              <svg viewBox="0 0 40 40"><line x1="10" y1="10" x2="30" y2="30" stroke="#fff" stroke-width="3" stroke-linecap="round"/><line x1="30" y1="10" x2="10" y2="30" stroke="#fff" stroke-width="3" stroke-linecap="round"/></svg>
-            </button>
-            <h2 id="searchModalTitle">Buscar produtos</h2>
-            <form class="form-search" action="<?php echo esc_url(home_url('/')); ?>" method="get" role="search">
-              <input type="search" name="s" id="searchInput" placeholder="Digite para buscar..." aria-label="Buscar desenhos" required />
-              <input type="hidden" name="post_type" value="post">
-              <button type="submit" aria-label="Buscar agora">Buscar produto</button>
-            </form>
-          </div>
-        </div>
-                                <script>
-(function () {
-  const openSearchBtn = document.getElementById('openSearchBtn');
-  const searchModalBg = document.getElementById('searchModalBg');
-  const closeSearchBtn = document.getElementById('closeSearchBtn');
-  const searchInput = document.getElementById('searchInput');
+	<footer class="grv-footer">
+		<div class="container grv-footer-cols">
+			<div class="grv-footer-about">
+				<a class="grv-footer-logo" href="<?php echo esc_url( home_url( '/' ) ); ?>" aria-label="Guia Review — página inicial">
+					<img src="<?php echo esc_url( get_template_directory_uri() . '/src/images/logo-guia-review.png' ); ?>" width="205" height="36" alt="Guia Review" loading="lazy">
+				</a>
+				<p>O Guia Review ajuda você a comparar produtos com mais clareza. Reunimos características, imagens e informações de diferentes categorias para apoiar sua escolha antes de acessar a oferta na loja.</p>
+				<nav aria-label="Sobre o Guia Review"><ul>
+					<li><a href="<?php echo esc_url( home_url( '/sobre' ) ); ?>">Sobre nós</a></li>
+					<li><a href="<?php echo esc_url( home_url( '/contato' ) ); ?>">Contato</a></li>
+					<li><a href="<?php echo esc_url( home_url( '/politica-de-privacidade' ) ); ?>">Política de privacidade</a></li>
+				</ul></nav>
+			</div>
+			<?php
+			$grv_footer_catalog = grv_catalog_categories();
+			$grv_footer_roots = array();
+			$grv_footer_technology = array();
+			$grv_footer_lifestyle = array();
+			$grv_footer_names = array_count_values( wp_list_pluck( $grv_footer_catalog['terms'], 'name' ) );
+			foreach ( $grv_footer_catalog['terms'] as $grv_footer_term ) {
+				if ( ! $grv_footer_term->parent ) {
+					$grv_footer_roots[] = $grv_footer_term;
+					continue;
+				}
+				if ( empty( $grv_footer_catalog['counts'][ $grv_footer_term->term_id ] ) ) { continue; }
+				$grv_footer_ancestors = get_ancestors( $grv_footer_term->term_id, 'category' );
+				$grv_footer_root = get_term( end( $grv_footer_ancestors ), 'category' );
+				if ( $grv_footer_root instanceof WP_Term && in_array( $grv_footer_root->slug, array( 'computadores-e-informatica', 'casa', 'eletronicos', 'games-e-consoles', 'tv-e-video' ), true ) ) {
+					$grv_footer_technology[] = $grv_footer_term;
+				} else {
+					$grv_footer_lifestyle[] = $grv_footer_term;
+				}
+			}
+			// Prioritize categories with products; keep the three link columns similarly sized.
+			$grv_footer_sort = static function ( $a, $b ) use ( $grv_footer_catalog ) {
+				return ( ( $grv_footer_catalog['counts'][ $b->term_id ] ?? 0 ) <=> ( $grv_footer_catalog['counts'][ $a->term_id ] ?? 0 ) ) ?: strcasecmp( $a->name, $b->name );
+			};
+			usort( $grv_footer_technology, $grv_footer_sort );
+			usort( $grv_footer_lifestyle, $grv_footer_sort );
+			$grv_footer_limit = max( 8, count( $grv_footer_roots ) );
+			$grv_footer_groups = array(
+				array( 'title' => 'Categorias', 'terms' => $grv_footer_roots ),
+				array( 'title' => 'Tecnologia e casa', 'terms' => array_slice( $grv_footer_technology, 0, $grv_footer_limit ) ),
+				array( 'title' => 'Saúde e estilo de vida', 'terms' => array_slice( $grv_footer_lifestyle, 0, $grv_footer_limit ) ),
+			);
+			foreach ( $grv_footer_groups as $grv_footer_index => $grv_footer_group ) :
+				if ( ! $grv_footer_group['terms'] ) { continue; }
+				?>
+				<nav class="grv-footer-category-links" aria-labelledby="grvFooterHeading<?php echo (int) $grv_footer_index; ?>">
+					<h2 id="grvFooterHeading<?php echo (int) $grv_footer_index; ?>"><?php echo esc_html( $grv_footer_group['title'] ); ?></h2>
+					<ul>
+						<?php foreach ( $grv_footer_group['terms'] as $grv_footer_term ) :
+							$grv_footer_label = $grv_footer_term->name;
+							if ( $grv_footer_term->parent && $grv_footer_names[ $grv_footer_label ] > 1 ) {
+								$grv_footer_parent = get_term( $grv_footer_term->parent, 'category' );
+								if ( $grv_footer_parent instanceof WP_Term ) { $grv_footer_label .= ' (' . $grv_footer_parent->name . ')'; }
+							}
+							?>
+							<li><a href="<?php echo esc_url( get_category_link( $grv_footer_term ) ); ?>"><?php echo esc_html( $grv_footer_label ); ?></a></li>
+						<?php endforeach; ?>
+					</ul>
+				</nav>
+			<?php endforeach; ?>
+		</div>
+		<p class="grv-footer-copyright">&copy; <?php echo esc_html( wp_date( 'Y' ) ); ?> Guia Review. Todos os direitos reservados.</p>
+	</footer>
 
-  function openSearch() {
-    searchModalBg.classList.add('active');
-    searchModalBg.setAttribute('aria-hidden', 'false');
-    setTimeout(() => searchInput.focus(), 100);
-  }
+</div><!-- /.grv -->
 
-  function closeSearch() {
-    searchModalBg.classList.remove('active');
-    searchModalBg.setAttribute('aria-hidden', 'true');
-  }
-
-  openSearchBtn.addEventListener('click', openSearch);
-  closeSearchBtn.addEventListener('click', closeSearch);
-
-  searchModalBg.addEventListener('click', (e) => {
-    if (e.target === searchModalBg) closeSearch();
-  });
-
-  document.addEventListener('keydown', (e) => {
-    if (searchModalBg.classList.contains('active') && e.key === 'Escape') closeSearch();
-  });
-})();
-</script>
-
-<div class="modal-ads" id="modalAds">
-  <div class="wrapper-modal-ads">
-    <span id="ads-3" class="closeText"></span>
-    <a id="ads-2" href="https://amzn.to/3ILMrU3" class="banner-inner" target="_blank" rel="noopener noreferrer">
-      <img src="<?php bloginfo('template_url'); ?>/src/images/ads-2.jpg" alt="Compre Novo Kindle Colorido | Frete Grátis com Prime">
-    </a>
-  </div>
-</div>
-
-<div id="footer-banner" class="expanded">
-  <button id="toggle-banner" title="Mostrar/Ocultar banner"></button>
-  <a id="ads-1" href="https://amzn.to/3ILMrU3" class="banner-inner" target="_blank" rel="noopener noreferrer">
-    <div class="banner-text">
-      <div class="image-banner">
-        <img src="<?php bloginfo('template_url'); ?>/src/images/ads-1.png" alt="Compre Novo Kindle Colorido | Frete Grátis com Prime">
-      </div>
-      <div class="group-banner">
-        <h2 class="banner-title">Compre Novo Kindle Colorido | Frete Grátis com Prime</h2>
-        <div class="group-link">
-          <img src="<?php bloginfo('template_url'); ?>/src/images/stars.png" alt="Avaliação">
-          <span class="link">Entrega Rápida e Segura</span>
-        </div>
-      </div>
-    </div>
-  </a>
-</div>
-
-<div class="cookie-notice" style="display: none">
-  <div class="container-cookie">
-    <div class="notice-text">
-      <span>
-        <p>Utilizamos cookies para oferecer melhor experiência, melhorar o desempenho, analisar como você interage em nosso aplicativo e personalizar conteúdo. Para mais informações acesse nossa <a href="<?php echo site_url(); ?>/privacy" title="Política de Privacidade">Política de Privacidade</a>.</p>
-      </span>
-    </div>
-    <div class="notice-buttons">
-      <span class="btn-cookie accept" title="Aceitar todos os cookies">Ok, entendi</span>
-    </div>
-  </div>
-</div>
-
+<?php require __DIR__ . '/footer-widgets.php'; ?>
 <?php wp_footer(); ?>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mobile-detect/1.4.3/mobile-detect.min.js"></script>
-
-<script>
-  function setCookie(name, value, days) {
-    const d = new Date();
-    d.setTime(d.getTime() + (days * 24 * 60 * 60 * 1000));
-    document.cookie = `${name}=${value}; expires=${d.toUTCString()}; path=/`;
-  }
-
-  function getCookie(name) {
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
-    if (parts.length === 2) return parts.pop().split(';').shift();
-  }
-
-  document.addEventListener('DOMContentLoaded', function () {
-    const modal = document.getElementById('modalAds');
-    const closeText = document.querySelector('.closeText');
-
-    if (getCookie('ocultou_ads') === 'sim') {
-      modal.classList.remove('active');
-      return;
-    }
-
-    modal.classList.add('active');
-
-    let counter = 5;
-    const interval = setInterval(() => {
-      if (counter > 0) {
-        closeText.textContent = `Fechar anúncio em ${counter}...`;
-        counter--;
-      } else {
-        clearInterval(interval);
-        closeText.textContent = 'Fechar anúncio';
-        closeText.style.cursor = 'pointer';
-
-        closeText.addEventListener('click', () => {
-          modal.classList.remove('active');
-          setCookie('ocultou_ads', 'sim', 3);
-
-          // Enviar clique do tipo "Fechar anúncio"
-          fetch('<?php echo admin_url('admin-ajax.php'); ?>', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/x-www-form-urlencoded'
-            },
-            body: new URLSearchParams({
-              action: 'enviar_clique_anuncio',
-              anuncio: 'ads-3',
-              pagina: window.location.href,
-              tipo: 'Fechar anúncio'
-            })
-          }).then(res => res.json()).then(data => {
-            console.log('ads-3 enviado:', data);
-          });
-        });
-      }
-    }, 1000);
-
-    // Clique em banners ads-1 e ads-2
-    ['ads-1', 'ads-2'].forEach(id => {
-      const el = document.getElementById(id);
-      if (el) {
-        el.addEventListener('click', function () {
-          fetch('<?php echo admin_url('admin-ajax.php'); ?>', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/x-www-form-urlencoded'
-            },
-            body: new URLSearchParams({
-              action: 'enviar_clique_anuncio',
-              anuncio: id,
-              pagina: window.location.href,
-              tipo: 'Clique Banner'
-            })
-          }).then(res => res.json()).then(data => {
-            console.log(data);
-          });
-        });
-      }
-    });
-  });
-
-  const banner = document.getElementById('footer-banner');
-  const toggleBtn = document.getElementById('toggle-banner');
-
-  toggleBtn?.addEventListener('click', () => {
-    banner.classList.toggle('collapsed');
-    localStorage.setItem('bannerCollapsed', banner.classList.contains('collapsed') ? '1' : '0');
-  });
-
-  window.addEventListener('DOMContentLoaded', () => {
-    const collapsed = localStorage.getItem('bannerCollapsed') === '1';
-    if (collapsed) {
-      banner.classList.add('collapsed');
-    }
-  });
-</script>
-
-<script>
-  window.onload = function () {
-    const body = document.getElementById("body");
-    const app = document.getElementById("installApp-bottom");
-    const closeApp = document.getElementById("close-app");
-
-    if (!getCookie("appDismissed")) {
-      if (app) app.style.display = "flex";
-      if (body) body.classList.add("resize-app");
-    }
-
-    if (closeApp) {
-      closeApp.addEventListener("click", () => {
-        if (app) app.style.display = "none";
-        setCookie("appDismissed", "true", 7);
-        if (body) body.classList.remove("resize-app");
-      });
-    }
-  }
-</script>
 </body>
 </html>
