@@ -2,7 +2,7 @@
 
 Pasta local: **`_arquivados/2026-10-20-limpeza/`**.
 
-Foram retirados do tema ativo **6.535 arquivos, totalizando 667,86 MB**. O conteúdo
+Foram retirados do tema ativo **6.536 arquivos, totalizando 667,87 MB**. O conteúdo
 foi movido e preservado; isso reduz o conjunto de arquivos do tema, sem liberar
 esse espaço do disco. A pasta `/_arquivados/` foi adicionada ao `.gitignore`.
 
@@ -29,7 +29,7 @@ Conteúdos e imagens cadastrados no banco e em uploads não foram removidos.
 ## Inventário e restauração
 
 `inventario.json`, dentro da pasta de arquivo, registra o caminho original,
-destino, tamanho e SHA-256 de cada arquivo. Os **6.542 hashes** foram conferidos
+destino, tamanho e SHA-256 de cada arquivo. Os **6.543 hashes** foram conferidos
 após a movimentação, incluindo sete cópias dos arquivos editados.
 
 Para restaurar um item, copie-o para o mesmo caminho relativo na raiz do tema.
@@ -44,7 +44,7 @@ ser enviada na publicação; a exclusão pelo Git já está configurada.
 ## Verificação
 
 Foram conferidas 345 URLs, incluindo produtos, categorias, tags, páginas,
-busca, login e resposta 404, além de 229 URLs de arquivos utilizados. Os 27
+busca, login e resposta 404, além de 229 URLs de arquivos utilizados. Os 26
 arquivos PHP ativos passaram na verificação de sintaxe. As contagens de
 conteúdo no WordPress foram preservadas, e nenhum arquivo necessário ficou
 ausente. A pasta de arquivo foi confirmada como ignorada pelo Git e bloqueada
