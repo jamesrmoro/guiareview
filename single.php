@@ -8,16 +8,19 @@ get_header();
 <main>
 <?php while ( have_posts() ) : the_post();
 	$post_id = get_the_ID();
+	if ( is_user_logged_in() ) {
+		$product_number = get_post_meta( $post_id, 'grv_product_number', true );
+		if ( $product_number !== '' ) {
+			echo '<aside class="grv-product-number">Produto n&ordm; <strong>' . esc_html( $product_number ) . '</strong></aside>';
+		}
+	}
 
 	$url          = grv_get_field( 'url' );
 	$image        = grv_get_field( 'image' );
-	$gallery      = grv_get_field( 'gallery' );
 	$price        = grv_get_field( 'price' );
 	$old_price    = grv_get_field( 'old_price' );
 	$brand        = grv_get_field( 'brand' );
 	$color        = grv_get_field( 'color' );
-	$rating       = grv_get_field( 'rating' );
-	$review_count = grv_get_field( 'review_count' );
 	$bullets      = grv_parse_lines( grv_get_field( 'bullets' ) );
 	$specs        = grv_parse_lines( grv_get_field( 'specs' ) );
 
@@ -34,22 +37,8 @@ get_header();
 	);
 	$legacy = array_filter( $legacy, function ( $v ) { return $v !== '' && $v !== false && $v !== null; } );
 
-	// Galeria: campo gallery > campo image (legado) > imagem destacada > placeholder.
-	// Alguns posts antigos já tinham um meta "gallery" próprio (lista de IDs de
-	// anexo) antes deste campo ACF existir — por isso tratamos os dois formatos.
+	// Uma única imagem: campo principal > imagem destacada > placeholder.
 	$images = array();
-	if ( $gallery && is_array( $gallery ) ) {
-		foreach ( $gallery as $g ) {
-			if ( is_array( $g ) && ! empty( $g['url'] ) ) {
-				$images[] = array( 'url' => $g['url'], 'alt' => $g['alt'] ?: get_the_title() );
-			} elseif ( is_numeric( $g ) ) {
-				$gallery_url = wp_get_attachment_image_url( (int) $g, 'large' );
-				if ( $gallery_url ) {
-					$images[] = array( 'url' => $gallery_url, 'alt' => get_post_meta( (int) $g, '_wp_attachment_image_alt', true ) ?: get_the_title() );
-				}
-			}
-		}
-	}
 	if ( empty( $images ) && $image ) {
 		$images[] = array( 'url' => $image, 'alt' => get_the_title() );
 	}
@@ -61,7 +50,12 @@ get_header();
 	}
 
 	$categories   = get_the_category();
-	$primary_cat  = $categories ? $categories[0] : null;
+	$primary_cat  = null;
+	foreach ( $categories as $category ) {
+		if ( ! $primary_cat || count( get_ancestors( $category->term_id, 'category' ) ) > count( get_ancestors( $primary_cat->term_id, 'category' ) ) ) {
+			$primary_cat = $category;
+		}
+	}
 	$trail        = $primary_cat ? grv_category_ancestors( $primary_cat ) : array();
 	if ( $primary_cat ) {
 		$trail[] = array( 'label' => $primary_cat->name, 'url' => get_category_link( $primary_cat->term_id ) );
@@ -73,31 +67,18 @@ get_header();
 
 	<article class="container grv-product">
 		<div class="grv-gallery" id="grvGallery">
-			<?php if ( count( $images ) > 1 ) : ?>
-			<ul class="thumbs">
-				<?php foreach ( $images as $i => $img ) : ?>
-					<li><button class="grv-thumb<?php echo $i === 0 ? ' is-active' : ''; ?>" data-full="<?php echo esc_url( $img['url'] ); ?>" aria-label="Imagem <?php echo $i + 1; ?>">
-						<img src="<?php echo esc_url( $img['url'] ); ?>" alt="<?php echo esc_attr( $img['alt'] ); ?>" width="60" height="60" <?php echo $i > 0 ? 'loading="lazy"' : ''; ?>>
-					</button></li>
-				<?php endforeach; ?>
-			</ul>
-			<?php endif; ?>
 			<figure class="grv-stage" id="grvStage">
-				<img id="grvMainImg" src="<?php echo esc_url( $images[0]['url'] ); ?>" alt="<?php echo esc_attr( $images[0]['alt'] ); ?>" width="600" height="600" fetchpriority="high">
+				<?php if ( $url ) : ?>
+					<a class="grv-stage-link" href="<?php echo esc_url( $url ); ?>" <?php echo grv_offer_attributes( $post_id ); ?> target="_blank" rel="nofollow sponsored noopener noreferrer" aria-label="<?php echo esc_attr( 'Ver oferta de ' . get_the_title() . ' (abre em nova aba)' ); ?>">
+				<?php endif; ?>
+				<?php echo grv_media_image( get_post_meta( $post_id, 'image', true ) ?: ( get_post_thumbnail_id( $post_id ) ?: $images[0]['url'] ), 'product_display', array( 'id' => 'grvMainImg', 'alt' => $images[0]['alt'], 'fetchpriority' => 'high', 'loading' => 'eager', 'sizes' => '(max-width: 680px) calc(100vw - 32px), (max-width: 1080px) 48vw, 520px' ) ); ?>
+				<?php if ( $url ) : ?></a><?php endif; ?>
 			</figure>
 		</div>
 
 		<div class="grv-info">
 			<h1><?php the_title(); ?></h1>
 			<?php if ( $brand ) : ?><p class="brand-link"><?php echo esc_html( $brand ); ?></p><?php endif; ?>
-
-			<?php if ( $rating ) : ?>
-				<p class="grv-rating" aria-label="Avaliação: <?php echo esc_attr( number_format_i18n( $rating, 1 ) ); ?> de 5 estrelas<?php echo $review_count ? ', ' . esc_attr( $review_count ) . ' avaliações' : ''; ?>">
-					<span class="stars" aria-hidden="true"><?php echo str_repeat( '★', (int) round( $rating ) ) . str_repeat( '☆', 5 - (int) round( $rating ) ); ?></span>
-					<span><?php echo esc_html( number_format_i18n( $rating, 1 ) ); ?></span>
-					<?php if ( $review_count ) : ?><?php if ( $url ) : ?><a href="<?php echo esc_url( $url ); ?>" <?php echo grv_offer_attributes( $post_id ); ?> target="_blank" rel="nofollow sponsored noopener noreferrer" aria-label="Ver avaliações de <?php echo esc_attr( get_the_title() ); ?> na loja"><?php echo esc_html( number_format_i18n( $review_count ) ); ?> avaliações</a><?php else : ?><span><?php echo esc_html( number_format_i18n( $review_count ) ); ?> avaliações</span><?php endif; ?><?php endif; ?>
-				</p>
-			<?php endif; ?>
 
 			<?php if ( $brand || $color || $price ) : ?>
 				<table class="grv-quick-specs">
@@ -107,6 +88,7 @@ get_header();
 				</table>
 			<?php endif; ?>
 
+			<div class="grv-product-description" id="grvProductDetails">
 			<?php the_content(); ?>
 
 			<?php if ( $bullets ) : ?>
@@ -117,6 +99,29 @@ get_header();
 					<?php endforeach; ?>
 				</ul>
 			<?php endif; ?>
+			<?php if ( $specs || $legacy ) : ?>
+			<section class="grv-accordion grv-product-specifications" aria-label="Informações do produto">
+				<h2>Informações do produto</h2>
+				<?php if ( $specs ) : ?>
+				<details open>
+					<summary>Especificações técnicas</summary>
+					<?php echo grv_product_specs_html( $specs ); ?>
+				</details>
+				<?php endif; ?>
+				<?php if ( $legacy ) : ?>
+				<details open>
+					<summary>Detalhes adicionais</summary>
+					<table class="specs">
+						<?php foreach ( $legacy as $label => $value ) : ?>
+						<tr><th><?php echo esc_html( $label ); ?></th><td><?php echo esc_html( $value ); ?></td></tr>
+						<?php endforeach; ?>
+					</table>
+				</details>
+				<?php endif; ?>
+			</section>
+			<?php endif; ?>
+			</div>
+			<button type="button" class="grv-description-toggle" aria-controls="grvProductDetails" aria-expanded="false" hidden><span>Ver mais informações</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
 		</div>
 
 		<aside class="grv-buybox" aria-label="Comprar">
@@ -133,46 +138,31 @@ get_header();
 				<a class="btn-buy" href="<?php echo esc_url( $url ); ?>" <?php echo grv_offer_attributes( $post_id ); ?> target="_blank" rel="nofollow sponsored noopener" title="Ver oferta">Ver oferta</a>
 				<a class="btn-buy-2" href="<?php echo esc_url( $url ); ?>" <?php echo grv_offer_attributes( $post_id ); ?> target="_blank" rel="nofollow sponsored noopener" title="Comprar">Comprar agora</a>
 			<?php endif; ?>
+			<?php grv_product_share( $post_id, $images[0]['url'] ); ?>
 		</aside>
 	</article>
 	<?php if ( $url ) : ?>
 	<div class="grv-mobile-buy"><a href="<?php echo esc_url( $url ); ?>" <?php echo grv_offer_attributes( $post_id ); ?> target="_blank" rel="nofollow sponsored noopener noreferrer">Comprar agora <span aria-hidden="true">↗</span></a></div>
 	<?php endif; ?>
 
-	<?php if ( $specs || $legacy ) : ?>
-	<section class="container grv-block grv-accordion" id="grvReviewsInfo">
-		<h2>Informações do produto</h2>
-		<?php if ( $specs ) : ?>
-			<details open>
-				<summary>Especificações técnicas</summary>
-				<?php echo grv_product_specs_html( $specs ); ?>
-			</details>
-		<?php endif; ?>
-		<?php if ( $legacy ) : ?>
-			<details<?php echo $specs ? '' : ' open'; ?>>
-				<summary>Detalhes adicionais</summary>
-				<table class="specs">
-					<?php foreach ( $legacy as $label => $value ) : ?>
-						<tr><th><?php echo esc_html( $label ); ?></th><td><?php echo esc_html( $value ); ?></td></tr>
-					<?php endforeach; ?>
-				</table>
-			</details>
-		<?php endif; ?>
-	</section>
-	<?php endif; ?>
-
 	<?php
 	if ( $primary_cat ) {
-		$related = new WP_Query( array(
-			'cat'            => $primary_cat->term_id,
-			'posts_per_page' => 8,
-			'post__not_in'   => array( $post_id ),
-			'ignore_sticky_posts' => true,
-		) );
+		$related_cat = $primary_cat;
+		do {
+			$related = new WP_Query( array(
+				'cat'                 => $related_cat->term_id,
+				'posts_per_page'      => 3,
+				'post__not_in'        => array( $post_id ),
+				'ignore_sticky_posts' => true,
+				'no_found_rows'       => true,
+			) );
+			if ( $related->have_posts() || ! $related_cat->parent ) { break; }
+			$related_cat = get_category( $related_cat->parent );
+		} while ( $related_cat && ! is_wp_error( $related_cat ) );
 		if ( $related->have_posts() ) :
 			?>
 			<section class="container grv-block grv-related">
-				<h2><?php echo esc_html( 'Mais em ' . $primary_cat->name ); ?></h2>
+				<h2><?php echo esc_html( 'Mais em ' . $related_cat->name ); ?></h2>
 				<div class="grv-grid">
 					<?php while ( $related->have_posts() ) : $related->the_post(); grv_product_card( get_the_ID() ); endwhile; ?>
 				</div>
@@ -209,25 +199,8 @@ get_header();
 			'url'           => $url ?: get_permalink(),
 		);
 	}
-	// Store ratings are displayed with their source link, not as reviews collected here.
 	?>
 	<script type="application/ld+json"><?php echo wp_json_encode( $schema, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES ); ?></script>
-
-	<script>
-	(function () {
-		var gallery = document.getElementById('grvGallery');
-		if (!gallery) return;
-		var mainImg = document.getElementById('grvMainImg');
-		var thumbs = gallery.querySelectorAll('.grv-thumb');
-		thumbs.forEach(function (t) {
-			t.addEventListener('click', function () {
-				mainImg.src = t.dataset.full;
-				mainImg.alt = t.querySelector('img').alt;
-				thumbs.forEach(function (x) { x.classList.toggle('is-active', x === t); });
-			});
-		});
-	})();
-	</script>
 
 <?php endwhile; ?>
 </main>

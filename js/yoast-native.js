@@ -47,7 +47,7 @@
         registered = true;
         YoastSEO.app.registerPlugin('grvNativeFields', {status: 'ready'});
         YoastSEO.app.registerModification('content', function (content) {
-            return content + nativeContent();
+            return grvYoastNative.replaceContent ? nativeContent() : content + nativeContent();
         }, 'grvNativeFields', 10);
     }
     $(window).on('YoastSEO:ready', register);

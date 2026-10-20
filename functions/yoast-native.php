@@ -50,11 +50,27 @@ function grv_yoast_native_content( $post_id ) {
     if ( $url ) { $html .= '<a href="' . esc_url( $url ) . '" rel="nofollow sponsored noopener noreferrer">Ver oferta na loja</a>'; }
     return $html;
 }
+/** Analyze the actual homepage rendered by front-page.php, rather than an empty page editor. */
+function grv_yoast_homepage_content() {
+    $response = wp_remote_get( home_url( '/' ), array( 'timeout' => 15 ) );
+    if ( is_wp_error( $response ) || wp_remote_retrieve_response_code( $response ) !== 200 ) { return ''; }
+    $dom = new DOMDocument();
+    @$dom->loadHTML( '<?xml encoding="UTF-8">' . wp_remote_retrieve_body( $response ) );
+    $main = $dom->getElementsByTagName( 'main' )->item( 0 );
+    if ( ! $main ) { return ''; }
+    $html = '';
+    foreach ( $main->childNodes as $child ) { $html .= $dom->saveHTML( $child ); }
+    return $html;
+}
 add_action( 'admin_enqueue_scripts', function () {
     $screen = get_current_screen();
-    if ( ! defined( 'WPSEO_VERSION' ) || ! $screen || $screen->base !== 'post' || $screen->post_type !== 'post' ) { return; }
+    if ( ! defined( 'WPSEO_VERSION' ) || ! $screen || $screen->base !== 'post' ) { return; }
+    $homepage = $screen->post_type === 'page' && get_the_ID() === (int) get_option( 'page_on_front' );
+    if ( $screen->post_type !== 'post' && ! $homepage ) { return; }
+    $content = $homepage ? grv_yoast_homepage_content() : grv_yoast_native_content( get_the_ID() );
+    if ( $homepage && ! $content ) { return; }
     wp_enqueue_script( 'grv-yoast-native', get_template_directory_uri() . '/js/yoast-native.js', ['jquery'], filemtime( __DIR__ . '/../js/yoast-native.js' ), true );
-    wp_localize_script( 'grv-yoast-native', 'grvYoastNative', ['content' => grv_yoast_native_content( get_the_ID() )] );
+    wp_localize_script( 'grv-yoast-native', 'grvYoastNative', ['content' => $content, 'replaceContent' => $homepage] );
 } );
 // Empty category archives are useful for navigation but have no indexable products yet.
 add_filter( 'wpseo_robots', function ( $robots ) {

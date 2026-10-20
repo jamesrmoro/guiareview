@@ -27,3 +27,6 @@ amazon-api/amazon-request.php
 amazon-api/vendor/
 amazon-api/request-apis.php
 produtos-inserir/processados/*/*_files/
+
+# Arquivos antigos preservados localmente. Consulte ARQUIVOS-ARQUIVADOS.md.
+/_arquivados/

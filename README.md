@@ -1,20 +1,21 @@
-SEARCH REPLACE
-------------------
-wp search-replace 'http://localhost/projetos/os10melhoreslivros' 'https://os10melhoreslivros.com.br' --export=banco-27-01-2024-production.sql --all-tables
+# Tema Guia Review
 
-PRODUCTION
-------------------
-+----------------------------+--------+-----------+---------+
-| name                       | status | update    | version |
-+----------------------------+--------+-----------+---------+
-| advanced-custom-fields-pro | active | available | 5.12.3  |
-| cloudflare                 | active | none      | 4.12.4  |
-| fast-indexing-api          | active | none      | 1.1.17  |
-| seo-by-rank-math           | active | available | 1.0.211 |
-| simple-custom-post-order   | active | none      | 2.5.7   |
-+----------------------------+--------+-----------+---------+
+Tema WordPress com catálogo de produtos, categorias e subcategorias, busca,
+links de afiliado, anúncios, relatórios administrativos e campos nativos.
 
-PAGES AMAZON
-------------------
-URL: https://os10melhoreslivros.com.br/wp-content/themes/os-10-melhores-livros/amazon-api/amazon-api.php
-Desativar plugin Wordfence Security para usar
+Os templates atuais ficam na raiz; as funções em `functions/`, os estilos em
+`css/`, os scripts em `js/` e os ícones usados em `favicon/` e `src/images/`.
+O frontend utiliza `css/guiareview.css`; a tela de acesso utiliza `css/login.css`.
+Os scripts administrativos declaram as dependências nativas do WordPress.
+Não é necessário executar Gulp, instalar um pacote NPM ou usar ACF para servir o tema.
+
+O ambiente atual usa Yoast SEO e Contact Form 7. A integração do Yoast e o
+formulário de contato permanecem no tema. As imagens cadastradas ficam em
+`wp-content/uploads/`, fora desta pasta.
+
+Consulte `DEPLOY.md` para exportar ou aplicar conteúdo com `deploy.php`.
+Essas ferramentas de publicação foram mantidas.
+
+Os arquivos antigos foram preservados em `_arquivados/2026-10-20-limpeza/`.
+Essa pasta é local, ignorada pelo Git e bloqueada para acesso HTTP. Consulte
+`ARQUIVOS-ARQUIVADOS.md` para localizar os arquivos e restaurá-los.

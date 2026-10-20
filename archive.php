@@ -18,7 +18,7 @@ $trail = array( array( 'label' => $title, 'url' => null ) );
 		<h1><?php echo esc_html( $title ); ?></h1>
 		<?php if ( is_tag() ) : ?>
 			<?php $term = get_queried_object(); ?>
-			<p class="desc"><?php echo esc_html( $term && $term->description ? $term->description : 'Produtos relacionados a "' . $title . '".' ); ?></p>
+			<div class="grv-cat-description"><?php echo $term && $term->description ? wp_kses_post( term_description( $term->term_id, 'post_tag' ) ) : '<p>' . esc_html( 'Produtos relacionados a "' . $title . '".' ) . '</p>'; ?></div>
 		<?php endif; ?>
 	</header>
 

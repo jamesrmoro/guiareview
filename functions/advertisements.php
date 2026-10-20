@@ -16,6 +16,8 @@ function grv_ad_fields(){return [
     '_grv_ad_variant'=>['Variante (A, B…)','text'],
     '_grv_ad_position'=>['Exibir em','select'],
     '_grv_ad_expires'=>['Expira em (opcional)','datetime-local'],
+    '_grv_ad_repeat_days'=>['Intervalo para reaparecer o modal (dias)','number'],
+    '_grv_ad_rotation_days'=>['Trocar por outro anúncio após (dias)','number'],
 ];}
 
 add_action('add_meta_boxes_grv_ad',function(){
@@ -24,14 +26,15 @@ add_action('add_meta_boxes_grv_ad',function(){
         echo '<div class="grv-ad-fields">';
         foreach(grv_ad_fields() as $key=>[$label,$type]){
             $value=get_post_meta($post->ID,$key,true);
+            if($type==='number'&&$value===''){$value=7;}
             if($key==='_grv_ad_expires'&&$value){$value=wp_date('Y-m-d\TH:i',(int)$value,wp_timezone());}
             echo '<label><span>'.esc_html($label).'</span>';
             if($type==='select'){
                 echo '<select name="grv_ad['.esc_attr($key).']">';foreach(['both'=>'Modal e rodapé','modal'=>'Somente modal','footer'=>'Somente rodapé'] as $choice=>$name){echo '<option value="'.$choice.'" '.selected($value?:'both',$choice,false).'>'.$name.'</option>';}echo '</select>';
-            }else{echo '<input type="'.esc_attr($type).'" name="grv_ad['.esc_attr($key).']" value="'.esc_attr($value).'">';}
+            }else{echo '<input type="'.esc_attr($type).'" name="grv_ad['.esc_attr($key).']" value="'.esc_attr($value).'"'.($type==='number'?' min="'.($key==='_grv_ad_repeat_days'?'0':'1').'" max="365" step="1"':'').'>';}
             echo '</label>';
         }
-        echo '</div><p class="description">Variantes da mesma campanha são distribuídas aleatoriamente, com chances iguais. Sem data, o anúncio não expira. Horário do site: '.esc_html(wp_timezone_string()).'.</p>';
+        echo '</div><p class="description">O intervalo do modal é contado desde a exibição, por navegador; 0 permite exibir em cada visita. A troca mantém a variante da campanha no mesmo navegador pelo prazo definido e escolhe outra disponível na próxima visita após esse prazo. Se houver apenas uma, ela é mantida. Padrão: 7 dias para ambos. Sem data de expiração, o anúncio não expira. Horário do site: '.esc_html(wp_timezone_string()).'.</p>';
         $views=grv_ad_count($post->ID,'views');$clicks=grv_ad_count($post->ID,'clicks');
         echo '<p><strong>'.number_format_i18n($views).' exibições · '.number_format_i18n($clicks).' cliques · '.esc_html($views?number_format_i18n(100*$clicks/$views,2):'0').' % CTR</strong></p>';
     },'grv_ad','normal','high');
@@ -45,6 +48,7 @@ add_action('save_post_grv_ad',function($id){
         $value=$values[$key];
         if($type==='url'){$value=esc_url_raw($value,['http','https']);}
         elseif($type==='select'){$value=in_array($value,['both','modal','footer'],true)?$value:'both';}
+        elseif($type==='number'){$value=grv_ad_days($id,$key,$value);}
         elseif($type==='datetime-local'){
             $date=$value!==''?DateTimeImmutable::createFromFormat('!Y-m-d\TH:i',$value,wp_timezone()):false;
             if($value!==''&&(!$date||$date->format('Y-m-d\TH:i')!==$value)){continue;}
@@ -65,12 +69,18 @@ function grv_ad_increment($id,$event){
     $ok=$wpdb->query($wpdb->prepare("INSERT INTO {$wpdb->options} (option_name,option_value,autoload) VALUES (%s,'1','no') ON DUPLICATE KEY UPDATE option_value=CAST(option_value AS UNSIGNED)+1",$key));
     wp_cache_delete($key,'options');wp_cache_delete('notoptions','options');return $ok!==false;
 }
+function grv_ad_days($id,$key,$value=null){
+    if($value===null){$value=get_post_meta($id,$key,true);}
+    if($value===''||!is_numeric($value)){$value=7;}
+    return max($key==='_grv_ad_repeat_days'?0:1,min(365,(int)$value));
+}
 function grv_ad_payload($id){return [
     'id'=>(int)$id,'title'=>get_the_title($id),'url'=>get_post_meta($id,'_grv_ad_url',true),'cta'=>get_post_meta($id,'_grv_ad_cta',true)?:'Ver oferta',
-    'image'=>wp_get_attachment_image_url(get_post_thumbnail_id($id),'large'),'campaign'=>get_post_meta($id,'_grv_ad_campaign',true)?:'geral','variant'=>get_post_meta($id,'_grv_ad_variant',true),
+    'image'=>wp_get_attachment_image_url(get_post_thumbnail_id($id),'full'),'thumbnail'=>wp_get_attachment_image_url(get_post_thumbnail_id($id),'thumbnail'),'campaign'=>get_post_meta($id,'_grv_ad_campaign',true)?:'geral','variant'=>get_post_meta($id,'_grv_ad_variant',true),
     'token'=>wp_hash('grv-ad|'.$id),'expires'=>(int)get_post_meta($id,'_grv_ad_expires',true),
+    'repeat_days'=>grv_ad_days($id,'_grv_ad_repeat_days'),'rotation_days'=>grv_ad_days($id,'_grv_ad_rotation_days'),
 ];}
-function grv_select_ads($preferences=[]){
+function grv_select_ads($preferences=[],$previous=[]){
     $groups=[];foreach(get_posts(['post_type'=>'grv_ad','post_status'=>'publish','numberposts'=>-1]) as $post){if(grv_ad_active($post->ID)){$group=get_post_meta($post->ID,'_grv_ad_campaign',true)?:'geral';$groups[$group][]=$post->ID;}}
     $selected=[];
     foreach($groups as $group=>$ids){$preferred=isset($preferences[$group])&&is_scalar($preferences[$group])?absint($preferences[$group]):0;$selected[$group]=in_array($preferred,$ids,true)?$preferred:$ids[wp_rand(0,count($ids)-1)];}
@@ -80,6 +90,11 @@ function grv_select_ads($preferences=[]){
             $eligible=array_values(array_filter($ids,fn($id)=>in_array(get_post_meta($id,'_grv_ad_position',true)?:'both',['both',$position],true)));
             if(!$eligible){continue;}
             $key=$group.'|'.$position;$preferred=isset($preferences[$key])&&is_scalar($preferences[$key])?absint($preferences[$key]):$selected[$group];
+            if(isset($previous[$key])&&is_scalar($previous[$key])){
+                $alternatives=array_values(array_diff($eligible,[absint($previous[$key])]));
+                if($alternatives){$eligible=$alternatives;}
+                $preferred=0;
+            }
             $candidates[]=in_array($preferred,$eligible,true)?$preferred:$eligible[wp_rand(0,count($eligible)-1)];
         }
         if($candidates){$result[$position]=grv_ad_payload($candidates[wp_rand(0,count($candidates)-1)]);$result[$position]['position']=$position;}
@@ -88,7 +103,8 @@ function grv_select_ads($preferences=[]){
 }
 function grv_get_ads_ajax(){
     $preferences=[];if(isset($_POST['variants'])&&is_string($_POST['variants'])){$preferences=json_decode(wp_unslash($_POST['variants']),true);if(!is_array($preferences)){$preferences=[];}}
-    nocache_headers();wp_send_json_success(grv_select_ads($preferences));
+    $previous=[];if(isset($_POST['previous'])&&is_string($_POST['previous'])){$previous=json_decode(wp_unslash($_POST['previous']),true);if(!is_array($previous)){$previous=[];}}
+    nocache_headers();wp_send_json_success(grv_select_ads($preferences,$previous));
 }
 function grv_ad_event_ajax(){
     if(($_SERVER['REQUEST_METHOD']??'')!=='POST'){wp_send_json_error(null,405);}
@@ -103,8 +119,9 @@ function grv_ad_event_ajax(){
 }
 foreach(['grv_get_ads'=>'grv_get_ads_ajax','grv_ad_event'=>'grv_ad_event_ajax'] as $action=>$callback){add_action('wp_ajax_'.$action,$callback);add_action('wp_ajax_nopriv_'.$action,$callback);}
 
-add_filter('manage_grv_ad_posts_columns',function($columns){return ['cb'=>$columns['cb'],'title'=>'Anúncio','grv_variant'=>'Campanha / variante','grv_ad_state'=>'Validade','grv_views'=>'Exibições','grv_ad_clicks'=>'Cliques','grv_ctr'=>'CTR','date'=>'Data'];});
+add_filter('manage_grv_ad_posts_columns',function($columns){return ['cb'=>$columns['cb'],'grv_ad_image'=>'Imagem','title'=>'Anúncio','grv_variant'=>'Campanha / variante','grv_ad_state'=>'Validade','grv_views'=>'Exibições','grv_ad_clicks'=>'Cliques','grv_ctr'=>'CTR','date'=>'Data'];});
 add_action('manage_grv_ad_posts_custom_column',function($column,$id){
+    if($column==='grv_ad_image'){$image=get_the_post_thumbnail($id,[72,72],['style'=>'width:72px;height:72px;object-fit:contain;border-radius:6px;background:#f1f5f6']);echo $image?:'—';}
     if($column==='grv_variant'){echo esc_html((get_post_meta($id,'_grv_ad_campaign',true)?:'Geral').' / '.(get_post_meta($id,'_grv_ad_variant',true)?:'—'));}
     if($column==='grv_ad_state'){$expires=(int)get_post_meta($id,'_grv_ad_expires',true);echo esc_html($expires?($expires<=time()?'Expirado · ':'Até ').wp_date('d/m/Y H:i',$expires):'Sem expiração');}
     if($column==='grv_views'){echo number_format_i18n(grv_ad_count($id,'views'));}
@@ -118,7 +135,7 @@ add_filter('posts_clauses',function($clauses,$query){
     $clauses['join'].=$wpdb->prepare(" LEFT JOIN {$wpdb->options} grv_ad_totals ON grv_ad_totals.option_name=CONCAT(%s,{$wpdb->posts}.ID) ",$prefix);
     $clauses['orderby']="CAST(COALESCE(grv_ad_totals.option_value,'0') AS UNSIGNED) $direction, {$wpdb->posts}.ID DESC";return $clauses;
 },10,2);
-add_action('admin_enqueue_scripts',function(){if(get_current_screen()?->post_type==='grv_ad'){wp_add_inline_style('common','.grv-ad-fields{display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:800px}.grv-ad-fields label span{display:block;margin-bottom:6px;font-weight:600}.grv-ad-fields input,.grv-ad-fields select{width:100%;min-height:38px}@media(max-width:700px){.grv-ad-fields{grid-template-columns:1fr}}');}});
+add_action('admin_enqueue_scripts',function(){if(get_current_screen()?->post_type==='grv_ad'){wp_add_inline_style('common','.column-grv_ad_image{width:92px}.column-grv_ad_image img{display:block}.grv-ad-fields{display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:800px}.grv-ad-fields label span{display:block;margin-bottom:6px;font-weight:600}.grv-ad-fields input,.grv-ad-fields select{width:100%;min-height:38px}@media(max-width:700px){.grv-ad-fields{grid-template-columns:1fr}}');}});
 add_action('add_meta_boxes_grv_ad',function(){remove_meta_box('wpseo_meta','grv_ad','normal');remove_meta_box('slugdiv','grv_ad','normal');},100);
 add_action('before_delete_post',function($id,$post){if($post->post_type==='grv_ad'){delete_option('grv_ad_views_'.$id);delete_option('grv_ad_clicks_'.$id);}},10,2);
 add_action('wp_enqueue_scripts',function(){

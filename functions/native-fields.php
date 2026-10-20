@@ -12,11 +12,11 @@ function grv_get_field( $name, $object_id = false ) {
         $value = get_post_meta( $object_id ?: get_the_ID(), $name, true );
         if ( $name === 'url' ) { $value = get_post_meta( $object_id ?: get_the_ID(), 'affiliate_url', true ) ?: $value; }
     }
-    if ( $name === 'image' ) {
+    if ( in_array( $name, array( 'image', 'menu_icon' ), true ) ) {
         if ( is_array( $value ) ) {
             return $value['url'] ?? '';
         }
-        return is_numeric( $value ) ? ( wp_get_attachment_image_url( (int) $value, 'large' ) ?: '' ) : $value;
+        return is_numeric( $value ) ? ( wp_get_attachment_image_url( (int) $value, $name === 'menu_icon' ? 'thumbnail' : 'large' ) ?: '' ) : $value;
     }
     return $value;
 }
@@ -33,7 +33,6 @@ function grv_product_fields() {
         'url' => array( 'Link original do produto (opcional)', 'url' ),
         'affiliate_url' => array( 'Link de afiliado', 'url' ),
         'image' => array( 'Imagem principal', 'image' ),
-        'gallery' => array( 'Galeria de imagens', 'gallery' ),
         'brand' => array( 'Marca', 'text' ),
         'color' => array( 'Cor', 'text' ),
         'price' => array( 'Preço (R$)', 'number' ),
@@ -67,21 +66,18 @@ function grv_render_product_fields( $post ) {
         if ( $name === 'affiliate_url' ) { continue; }
         list( $label, $type ) = $field;
         $value = get_post_meta( $post->ID, $name, true );
-        if ( $type === 'gallery' ) {
-            $value = is_array( $value ) ? implode( ',', array_map( 'absint', $value ) ) : $value;
-        }
         if ( ! is_scalar( $value ) ) { $value = ''; }
         echo '<p><label for="grv-' . esc_attr( $name ) . '"><strong>' . esc_html( $label ) . '</strong></label><br>';
         if ( $type === 'textarea' ) {
             echo '<textarea class="widefat" rows="5" id="grv-' . esc_attr( $name ) . '" name="grv_product[' . esc_attr( $name ) . ']">' . esc_textarea( $value ) . '</textarea>';
         } else {
-            $input_type = in_array( $type, array( 'image', 'gallery' ), true ) ? 'text' : $type;
+            $input_type = $type === 'image' ? 'text' : $type;
             $limits = $type === 'number' ? ' min="0" step="' . ( in_array( $name, array( 'review_count', 'pages' ), true ) ? '1' : '0.01' ) . '"' : '';
             if ( $name === 'rating' ) { $limits .= ' max="5"'; }
             echo '<input class="widefat" id="grv-' . esc_attr( $name ) . '" name="grv_product[' . esc_attr( $name ) . ']" type="' . esc_attr( $input_type ) . '" value="' . esc_attr( $value ) . '"' . $limits . '>';
-            if ( in_array( $type, array( 'image', 'gallery' ), true ) ) {
-                echo '<button type="button" class="button grv-media" data-target="grv-' . esc_attr( $name ) . '" data-multiple="' . ( $type === 'gallery' ? '1' : '0' ) . '">Selecionar imagens</button> <button type="button" class="button grv-media-clear" data-target="grv-' . esc_attr( $name ) . '">Limpar</button><div id="grv-' . esc_attr( $name ) . '-preview">';
-                $ids = $type === 'gallery' ? explode( ',', $value ) : array( $value );
+            if ( $type === 'image' ) {
+                echo '<button type="button" class="button grv-media" data-target="grv-' . esc_attr( $name ) . '" data-multiple="0">Selecionar imagem</button> <button type="button" class="button grv-media-clear" data-target="grv-' . esc_attr( $name ) . '">Limpar</button><div id="grv-' . esc_attr( $name ) . '-preview">';
+                $ids = array( $value );
                 foreach ( $ids as $id ) { echo wp_get_attachment_image( absint( $id ), 'thumbnail' ); }
                 echo '</div>';
             }
@@ -111,9 +107,6 @@ add_action( 'save_post_post', function ( $post_id ) {
                 $value = is_numeric( $value ) ? absint( $value ) : esc_url_raw( $value );
                 if ( is_int( $value ) && $value && ! wp_attachment_is_image( $value ) ) { continue 2; }
                 break;
-            case 'gallery':
-                $value = array_values( array_unique( array_filter( array_map( 'absint', explode( ',', $value ) ), 'wp_attachment_is_image' ) ) );
-                break;
             case 'number':
                 $value = str_replace( ',', '.', $value );
                 if ( $value !== '' && ! is_numeric( $value ) ) { continue 2; }
@@ -133,7 +126,7 @@ add_action( 'save_post_post', function ( $post_id ) {
 function grv_category_fields( $term = null ) {
     $editing = $term instanceof WP_Term;
     wp_nonce_field( 'grv_category_save', 'grv_category_nonce' );
-    foreach ( array( 'image' => 'Imagem (ID da mídia ou URL)', 'flag' => 'Destaque da categoria' ) as $name => $label ) {
+    foreach ( array( 'image' => 'Imagem (ID da mídia ou URL)', 'menu_icon' => 'Ícone do menu (ID da mídia ou URL)', 'flag' => 'Destaque da categoria' ) as $name => $label ) {
         $value = $editing ? get_term_meta( $term->term_id, $name, true ) : '';
         echo $editing ? '<tr class="form-field"><th><label for="grv-cat-' . esc_attr( $name ) . '">' . esc_html( $label ) . '</label></th><td>' : '<div class="form-field"><label for="grv-cat-' . esc_attr( $name ) . '">' . esc_html( $label ) . '</label>';
         echo '<input id="grv-cat-' . esc_attr( $name ) . '" type="' . ( $name === 'flag' ? 'checkbox' : 'text' ) . '" name="grv_category[' . esc_attr( $name ) . ']" value="' . esc_attr( $name === 'flag' ? '1' : $value ) . '"' . ( $name === 'flag' ? checked( (bool) $value, true, false ) : '' ) . '>';
@@ -145,8 +138,10 @@ add_action( 'category_edit_form_fields', 'grv_category_fields' );
 function grv_save_category_fields( $term_id ) {
     if ( ! current_user_can( 'manage_categories' ) || ! isset( $_POST['grv_category_nonce'] ) || ! is_string( $_POST['grv_category_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['grv_category_nonce'] ) ), 'grv_category_save' ) ) { return; }
     $values = isset( $_POST['grv_category'] ) && is_array( $_POST['grv_category'] ) ? wp_unslash( $_POST['grv_category'] ) : array();
-    if ( isset( $values['image'] ) && is_scalar( $values['image'] ) ) {
-        update_term_meta( $term_id, 'image', is_numeric( $values['image'] ) ? absint( $values['image'] ) : esc_url_raw( $values['image'] ) );
+    foreach ( array( 'image', 'menu_icon' ) as $name ) {
+        if ( isset( $values[ $name ] ) && is_scalar( $values[ $name ] ) ) {
+            update_term_meta( $term_id, $name, is_numeric( $values[ $name ] ) ? absint( $values[ $name ] ) : esc_url_raw( $values[ $name ] ) );
+        }
     }
     update_term_meta( $term_id, 'flag', empty( $values['flag'] ) ? 0 : 1 );
 }

@@ -6,6 +6,10 @@
 get_header();
 
 $term = get_queried_object();
+$category_icon = $term ? grv_get_field( 'menu_icon', 'category_' . $term->term_id ) : '';
+if ( ! $category_icon && $term ) {
+	$category_icon = grv_get_field( 'image', 'category_' . $term->term_id );
+}
 $trail = $term ? grv_category_ancestors( $term ) : array();
 $trail[] = array( 'label' => single_cat_title( '', false ), 'url' => null );
 
@@ -15,12 +19,17 @@ $subcats = $term ? get_categories( array( 'parent' => $term->term_id, 'hide_empt
 	<?php grv_breadcrumbs( $trail ); ?>
 
 	<header class="container grv-cat-header">
-		<h1><?php single_cat_title(); ?></h1>
-		<?php if ( $term && $term->description ) : ?>
-			<p class="desc"><?php echo esc_html( $term->description ); ?></p>
-		<?php else : ?>
-			<p class="desc">Veja nossa seleção de <?php echo esc_html( mb_strtolower( single_cat_title( '', false ) ) ); ?>, com análises e comparativos para te ajudar a escolher.</p>
-		<?php endif; ?>
+		<div class="grv-cat-heading">
+			<?php if ( $category_icon ) : ?>
+				<img class="grv-cat-heading-icon" src="<?php echo esc_url( $category_icon ); ?>" alt="" width="88" height="88">
+			<?php endif; ?>
+			<div class="grv-cat-heading-content">
+				<h1><?php single_cat_title(); ?></h1>
+				<?php if ( $term && $term->description ) : ?>
+					<div class="grv-cat-description"><?php echo wp_kses_post( category_description( $term->term_id ) ); ?></div>
+				<?php endif; ?>
+			</div>
+		</div>
 
 		<?php if ( $subcats ) : ?>
 			<nav class="grv-subcats" aria-label="Subcategorias de <?php single_cat_title(); ?>">
@@ -31,7 +40,7 @@ $subcats = $term ? get_categories( array( 'parent' => $term->term_id, 'hide_empt
 		<?php endif; ?>
 	</header>
 
-	<section class="container grv-block">
+	<section class="container grv-block grv-category-products">
 		<?php if ( have_posts() ) : ?>
 			<div class="grv-grid">
 				<?php while ( have_posts() ) : the_post(); grv_product_card( get_the_ID() ); endwhile; ?>

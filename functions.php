@@ -1,54 +1,18 @@
 <?php
 require_once __DIR__ . '/functions/yoast-native.php';
+require_once __DIR__ . '/functions/search-insights.php';
+require_once __DIR__ . '/functions/catalog-ui.php';
 
-define( 'sprintcodes_VERSION', '0.0.7' );
+
 add_theme_support( 'post-thumbnails' );
 add_theme_support( 'title-tag' );
 
-if (function_exists('add_image_size')) {
-  add_image_size( 'small_thumbnail', 318, 423, true );
-  add_image_size( 'product_thumb', 400, 400, true );
-  add_image_size( 'product_card', 480, 480, true );
-}
+require_once __DIR__ . '/functions/media-optimization.php';
 
 register_nav_menus( array(
   'categorias' => __( 'Menu de Categorias' ),
 ) );
 
-/**
- * Walker do menu de categorias: para cada item de topo que aponta para uma
- * categoria, adiciona automaticamente um dropdown com as subcategorias reais
- * da taxonomia (sem precisar cadastrar cada subcategoria manualmente no menu).
- */
-class GRV_Menu_Walker extends Walker_Nav_Menu {
-  public function start_el( &$output, $item, $depth = 0, $args = null, $id = 0 ) {
-    parent::start_el( $output, $item, $depth, $args, $id );
-
-    if ( $depth !== 0 || $item->object !== 'category' ) {
-      return;
-    }
-
-    $children = get_categories( array(
-      'parent'     => (int) $item->object_id,
-      'hide_empty' => false,
-      'orderby'    => 'name',
-    ) );
-
-    if ( empty( $children ) ) {
-      return;
-    }
-
-    $output .= '<ul class="sub-menu">';
-    foreach ( $children as $child ) {
-      $output .= '<li><a href="' . esc_url( get_category_link( $child->term_id ) ) . '">' . esc_html( $child->name ) . '</a></li>';
-    }
-    $output .= '</ul>';
-  }
-}
-
-/**
- * Árvore de categorias recursiva (usada no drawer mobile).
- */
 /**
  * Breadcrumb simples. $items = [ ['label'=>'Casa','url'=>'...'], ['label'=>'Atual','url'=>null] ]
  */
@@ -140,8 +104,6 @@ function grv_product_card( $post_id ) {
   $image    = grv_get_field( 'image', $post_id );
   $price    = grv_get_field( 'price', $post_id );
   $old_price= grv_get_field( 'old_price', $post_id );
-  $rating   = grv_get_field( 'rating', $post_id );
-  $reviews  = grv_get_field( 'review_count', $post_id );
 
   if ( ! $image ) {
     $image = get_the_post_thumbnail_url( $post_id, 'product_card' );
@@ -154,12 +116,9 @@ function grv_product_card( $post_id ) {
   ?>
   <article class="grv-card">
     <a class="grv-card-main" href="<?php echo esc_url( $link ); ?>" title="<?php echo esc_attr( $title ); ?>">
-    <span class="thumb"><img src="<?php echo esc_url( $image ); ?>" alt="<?php echo esc_attr( $title ); ?>" loading="lazy" width="300" height="300"></span>
+    <span class="thumb"><?php echo grv_media_image( get_post_meta( $post_id, 'image', true ) ?: ( get_post_thumbnail_id( $post_id ) ?: $image ), 'product_card', array( 'alt' => $title, 'loading' => 'lazy', 'sizes' => '(max-width: 460px) calc(100vw - 48px), (max-width: 760px) 45vw, (max-width: 1100px) 30vw, 260px' ) ); ?></span>
     <h3><?php echo esc_html( $title ); ?></h3>
     </a>
-    <?php if ( $rating ) : ?>
-      <span class="rating"><span class="stars" aria-hidden="true"><?php echo str_repeat( '★', (int) round( $rating ) ) . str_repeat( '☆', 5 - (int) round( $rating ) ); ?></span> <?php echo esc_html( number_format_i18n( $rating, 1 ) ); ?><?php if ( $reviews ) : ?><?php if ( $url ) : ?><a class="grv-card-reviews" href="<?php echo esc_url( $url ); ?>" <?php echo grv_offer_attributes( $post_id ); ?> target="_blank" rel="nofollow sponsored noopener noreferrer" aria-label="Ver avaliações de <?php echo esc_attr( $title ); ?> na loja">(<?php echo esc_html( number_format_i18n( $reviews ) ); ?>)</a><?php else : ?><span>(<?php echo esc_html( number_format_i18n( $reviews ) ); ?>)</span><?php endif; ?><?php endif; ?></span>
-    <?php endif; ?>
     <?php if ( $price ) : ?>
       <span class="price"><?php if ( $old_price && $old_price > $price ) : ?><span class="old">R$ <?php echo esc_html( number_format( $old_price, 2, ',', '.' ) ); ?></span><?php endif; ?>R$ <?php echo esc_html( number_format( $price, 2, ',', '.' ) ); ?></span>
     <?php endif; ?>
@@ -209,7 +168,7 @@ add_action( 'init', function () {
 
 // Functions
 require(get_template_directory() . '/functions/functions/scripts-footer.php' );
-require(get_template_directory() . '/functions/functions/widgets.php' );
+
 require(get_template_directory() . '/functions/functions/login-style.php' );
 require(get_template_directory() . '/functions/functions/pagination.php' );
 require(get_template_directory() . '/functions/functions/seo.php' );
@@ -261,122 +220,6 @@ function remove_block_library_style() {
 add_action('wp_enqueue_scripts', 'remove_block_library_style');
 
 
-
-
-// Adiciona uma coluna personalizada na listagem de categorias
-function adicionar_coluna_imagem_social($columns) {
-    $columns['imagem_social'] = 'Imagem Social';
-    return $columns;
-}
-add_filter('manage_edit-category_columns', 'adicionar_coluna_imagem_social');
-
-// Exibe o conteúdo na coluna personalizada
-function exibir_imagem_social_coluna($content, $column_name, $term_id) {
-    static $contador = 0; // Inicializa o contador
-
-    ?>
-
-        <style type="text/css">
-            .color1 {
-                background-color: #D52D60;
-            }
-            .color2 {
-                background-color: #0078A8;
-            }
-            .color3 {
-                background-color: #FAAD31;
-            }
-            .color {
-                width: 15px;
-                height: 15px;
-                display: inline-block;
-            }
-        </style>
-
-    <?php
-
-    if ($column_name === 'imagem_social') {
-        // Incrementa o contador a cada chamada
-        $contador++;
-
-        // Define as cores a serem usadas
-        $cores = ['color1', 'color2', 'color3'];
-
-        // Determina a cor com base na posição
-        $cor_index = ($contador - 1) % count($cores); // Usa o contador para ciclo
-        $cor = $cores[$cor_index];
-
-        // Obtém todos os metadados para a categoria
-        $metadados = get_term_meta($term_id);
-
-        // Obtém a imagem social, se disponível
-        $imagem_social = isset($metadados['rank_math_facebook_image']) ? $metadados['rank_math_facebook_image'][0] : get_bloginfo('template_url') . '/src/images/no-seo.gif';
-
-        // Exibe a cor e a imagem social
-        echo '<div class="color ' . $cor . '"></div><img style="width: 95px" src="' . $imagem_social . '">';
-    }
-
-    return $content;
-}
-add_filter('manage_category_custom_column', 'exibir_imagem_social_coluna', 10, 3);
-
-function enviar_email_download() {
-    // Verificar nonce para segurança
-    if ( !isset($_POST['_ajax_nonce']) || !wp_verify_nonce($_POST['_ajax_nonce'], 'meu_nonce') ) {
-        wp_send_json_error(['message' => 'Nonce inválido.']);
-        exit;
-    }
-
-    // Email para o qual será enviado
-    $para = "jamesrmoro@gmail.com";
-
-    $cidade = isset($_POST['cidade']) ? sanitize_text_field($_POST['cidade']) : 'Desconhecida';
-    $aparelho = isset($_POST['aparelho']) ? sanitize_text_field($_POST['aparelho']) : 'Desconhecido';
-
-    $datetime = new DateTime('now', new DateTimeZone('America/Sao_Paulo'));
-    $data_horario = $datetime->format('d/m/Y \à\s H:i');
-
-    // Assunto do email
-    $assunto = "Clique no app às {$data_horario}";
-
-    // Corpo do email
-    $mensagem = "Um visitante clicou no botão de download no dia {$data_horario}.<br>";
-    $mensagem .= "Cidade: {$cidade}<br>";
-    $mensagem .= "Aparelho: {$aparelho}<br>";
-
-    // Cabeçalhos do email
-    $headers = array(
-        'Content-Type: text/html; charset=UTF-8',
-        'From: Os 10 melhores livros <contato@os10melhoreslivros.com.br>'
-    );
-
-    // Enviar email
-    $enviado = wp_mail($para, $assunto, $mensagem, $headers);
-
-    // Retornar resposta AJAX
-    if ($enviado) {
-        wp_send_json_success(['message' => 'Email enviado com sucesso.']);
-    } else {
-        wp_send_json_error(['message' => 'Erro ao enviar o email.']);
-    }
-}
-
-add_action('wp_ajax_enviar_email_download', 'enviar_email_download');
-add_action('wp_ajax_nopriv_enviar_email_download', 'enviar_email_download');
-
-function adicionar_scripts() {
-    // Registra o script JavaScript
-    wp_enqueue_script('notification-app', get_template_directory_uri() . '/js/notification-app.js', array('jquery'), null, true);
-
-    // Passa o valor da URL do admin-ajax.php para o JavaScript
-    wp_localize_script('notification-app', 'ajaxurl', admin_url('admin-ajax.php'));
-
-    // Criar um nonce e passá-lo para o JavaScript
-    wp_localize_script('notification-app', 'meu_objeto_ajax', array(
-        'ajax_nonce' => wp_create_nonce('meu_nonce')
-    ));
-}
-add_action('wp_enqueue_scripts', 'adicionar_scripts');
 
 
 // Altera o nome do remetente

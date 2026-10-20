@@ -16,9 +16,6 @@
 
 	<header class="grv-header">
 		<div class="container grv-hd-row">
-			<button class="grv-menu-toggle" id="grvMenuToggle" aria-controls="grvDrawer" aria-expanded="false" aria-label="Abrir menu de categorias">
-				<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
-			</button>
 			<a class="grv-logo" href="<?php echo esc_url( home_url( '/' ) ); ?>" title="<?php bloginfo('name'); ?>">
 				<img src="<?php bloginfo('template_url') ?>/src/images/logo-guia-review.png" width="160" height="28" alt="Guia Review">
 			</a>
@@ -28,17 +25,12 @@
 			</button>
 		</div>
 		<nav class="grv-cat-nav" aria-label="Categorias">
-			<div class="container">
-				<?php
-				wp_nav_menu( array(
-					'theme_location' => 'categorias',
-					'container'      => false,
-					'menu_class'     => 'grv-cat-list',
-					'walker'         => new GRV_Menu_Walker(),
-					'fallback_cb'    => false,
-					'depth'          => 1,
-				) );
-				?>
+			<div class="container grv-nav-row">
+				<button type="button" class="grv-all-categories" id="grvMenuToggle" aria-controls="grvDrawer" aria-expanded="false" aria-label="Abrir todas as categorias">
+					<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+					Todas
+				</button>
+				<?php grv_category_navigation(); ?>
 			</div>
 		</nav>
 	</header>
@@ -48,8 +40,12 @@
 			<a href="<?php echo esc_url( home_url( '/' ) ); ?>"><img src="<?php bloginfo('template_url') ?>/src/images/logo-guia-review.png" width="130" height="23" alt="Guia Review"></a>
 			<button class="grv-drawer-close" id="grvDrawerClose" aria-label="Fechar menu">&times;</button>
 		</div>
+		<div class="grv-drawer-search">
+			<label class="sr-only" for="grvCategorySearch">Buscar categoria</label>
+			<input type="search" id="grvCategorySearch" placeholder="Buscar categoria…" autocomplete="off" aria-controls="grvDrawerCategories">
+		</div>
 		<div class="grv-drawer-body">
-			<?php grv_category_drawer_tree(); ?>
+			<?php grv_catalog_drawer(); ?>
 		</div>
 	</dialog>
 
@@ -62,7 +58,7 @@
 			<form class="grv-form-search" action="<?php echo esc_url(home_url('/')); ?>" method="get" role="search">
 				<input type="search" name="s" id="grvSearchInput" placeholder="O que você está procurando?" aria-label="Buscar produtos" required />
 				<input type="hidden" name="post_type" value="post">
-				<button type="submit">Buscar</button>
+				<button type="submit"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4 4"/></svg><span>Buscar</span></button>
 			</form>
 		</div>
 	</div>
